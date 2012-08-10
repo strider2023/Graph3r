@@ -275,9 +275,10 @@ public class BarGraphView extends View {
 		
 		/** Scale the canvas **/
 		canvas.save();
+		/** Clip canvas **/
+		canvas.clipRect(originX, (int) (_height), _width, originY, android.graphics.Region.Op.REPLACE);
 		/** Set canvas zoom **/
 		canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
-		//canvas.clipRect(originX, (int) (_height), _width, originY, android.graphics.Region.Op.REPLACE);
 		/** Set canvas translate **/
 		canvas.translate(translateX / mScaleFactor, 0);
 
@@ -449,6 +450,7 @@ public class BarGraphView extends View {
 		}
 		// Restore canvas after zooming and translating
 		canvas.restore();
+		invalidate();
 	}
 
 	private class ScaleListener extends
