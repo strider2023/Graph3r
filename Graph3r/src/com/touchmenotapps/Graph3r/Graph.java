@@ -1,5 +1,10 @@
 package com.touchmenotapps.Graph3r;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public class Graph {
 	
 	public static final int STYLE_BAR_NORMAL = 0;

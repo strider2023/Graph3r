@@ -8,6 +8,11 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public class BarGraphRenderer implements BarGraphInterface {
 	
 	private Context mContext;

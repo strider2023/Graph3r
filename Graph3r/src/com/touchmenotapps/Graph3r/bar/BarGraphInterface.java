@@ -2,6 +2,11 @@ package com.touchmenotapps.Graph3r.bar;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public interface BarGraphInterface {
 	public float getScaleFactor();
 	public ArrayList<Double> getPlotData();

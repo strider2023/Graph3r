@@ -2,6 +2,11 @@ package com.touchmenotapps.Graph3r.bar;
 
 import android.graphics.Rect;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public class BarGraphObject {
 
 	private Rect barBounds;

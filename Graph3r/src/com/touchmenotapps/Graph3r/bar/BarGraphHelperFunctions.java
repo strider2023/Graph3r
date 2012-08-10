@@ -11,6 +11,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Align;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public class BarGraphHelperFunctions {
 		
 	/**

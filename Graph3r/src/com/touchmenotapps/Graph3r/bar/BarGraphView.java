@@ -24,6 +24,11 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Toast;
 
+/**
+ * 
+ * @author Arindam Nath
+ *
+ */
 public class BarGraphView extends View {
 
 	private BarGraphRenderer mRenderer;
