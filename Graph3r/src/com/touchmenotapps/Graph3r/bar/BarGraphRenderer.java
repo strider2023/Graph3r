@@ -1,5 +1,6 @@
 package com.touchmenotapps.Graph3r.bar;
 
+
 import java.util.ArrayList;
 
 import com.touchmenotapps.Graph3r.Graph;
@@ -67,7 +68,15 @@ public class BarGraphRenderer implements BarGraphInterface {
 	
 	private boolean graphIsZoomable = false;
 	
+	private boolean graphXZoomable = false;
+	
+	private boolean graphYZoomable = false;
+	
 	private boolean graphIsPannable = false;
+	
+	private boolean graphXPannable = false;
+	
+	private boolean graphYPannable = false;
 	
 	private boolean runningOnTablet = false;
 	
@@ -78,15 +87,21 @@ public class BarGraphRenderer implements BarGraphInterface {
 	 * @param graphColors
 	 * @param axesLabels
 	 */
-	public BarGraphRenderer(View parentView, ArrayList<Double> graphData, ArrayList<int[]> graphColors, ArrayList<String> axesLabels) {
+	public BarGraphRenderer(View parentView, ArrayList<Double> graphData, ArrayList<int[]> graphColors) {
 		this.mContext = parentView.getContext();
 		this.data = graphData;
 		this.color = graphColors;
-		this.barLabels = axesLabels;
 		this.graphWidth = parentView.getWidth();
 		this.graphHeight = parentView.getHeight();
 		this.graphOriginX = parentView.getWidth()/10;
 		this.graphOriginY = parentView.getHeight()/6;
+	}
+	
+	public void setGraphWidthAndHeight(int width, int height) {
+		this.graphWidth = width;
+		this.graphHeight = height;
+		this.graphOriginX = width/10;
+		this.graphOriginY = height/6;
 	}
 	
 	/**
@@ -97,6 +112,13 @@ public class BarGraphRenderer implements BarGraphInterface {
 		return new BarGraphView(mContext, this);
 	}
 		
+	/**
+	 * @param barLabels the barLabels to set
+	 */
+	public void setBarLabels(ArrayList<String> barLabels) {
+		this.barLabels = barLabels;
+	}
+
 	/**
 	 * @param mScaleFactor the mScaleFactor to set
 	 */
@@ -219,16 +241,21 @@ public class BarGraphRenderer implements BarGraphInterface {
 	/**
 	 * @param graphIsZoomable the graphIsZoomable to set
 	 */
-	public void setGraphIsZoomable(boolean graphIsZoomable) {
+	public void setGraphIsZoomable(boolean graphIsZoomable, boolean graphXZoomable, boolean graphYZoomable) {
 		this.graphIsZoomable = graphIsZoomable;
+		this.graphXZoomable = graphXZoomable;
+		this.graphYZoomable = graphYZoomable;
 	}
 
 	/**
 	 * @param graphIsPannable the graphIsPannable to set
 	 */
-	public void setGraphIsPannable(boolean graphIsPannable) {
+	public void setGraphIsPannable(boolean graphIsPannable, boolean graphXPannable, boolean graphYPannable) {
 		this.graphIsPannable = graphIsPannable;
+		this.graphXPannable = graphXPannable;
+		this.graphYPannable = graphYPannable;
 	}
+	
 	/**
 	 * @return the runningOnTablet
 	 */
@@ -236,6 +263,7 @@ public class BarGraphRenderer implements BarGraphInterface {
 		return runningOnTablet;
 	}
 
+	
 	/**
 	 * @param runningOnTablet the runningOnTablet to set
 	 */
@@ -243,6 +271,7 @@ public class BarGraphRenderer implements BarGraphInterface {
 		this.runningOnTablet = runningOnTablet;
 	}
 
+	
 	/*****************************************************************************************************************************
 	 * Getter Methods
 	 *****************************************************************************************************************************/	
@@ -376,4 +405,37 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean getGraphIsPannable() {
 		return graphIsPannable;
 	}
+
+	
+	/**
+	 * @return the graphXZoomable
+	 */
+	public boolean isGraphXZoomable() {
+		return graphXZoomable;
+	}
+
+	
+	/**
+	 * @return the graphYZoomable
+	 */
+	public boolean isGraphYZoomable() {
+		return graphYZoomable;
+	}
+
+	
+	/**
+	 * @return the graphXPannable
+	 */
+	public boolean isGraphXPannable() {
+		return graphXPannable;
+	}
+
+	
+	/**
+	 * @return the graphYPannable
+	 */
+	public boolean isGraphYPannable() {
+		return graphYPannable;
+	}
 }
+

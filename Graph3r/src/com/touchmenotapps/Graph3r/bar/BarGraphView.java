@@ -275,12 +275,26 @@ public class BarGraphView extends View {
 		
 		/** Scale the canvas **/
 		canvas.save();
-		/** Clip canvas **/
-		canvas.clipRect(originX, (int) (_height), _width, originY, android.graphics.Region.Op.REPLACE);
+		/** Clip the cavas in the drawn graph area **/
+		canvas.clipRect(originX, (int) (_height), _width, originY+ xAxisLabelDistance + 15, android.graphics.Region.Op.REPLACE);
 		/** Set canvas zoom **/
-		canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
+		if(mRenderer.getGraphIsZoomable()) {
+			if(mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
+				canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
+			else if(mRenderer.isGraphXZoomable() && !mRenderer.isGraphYZoomable())
+				canvas.scale(mScaleFactor, 1, originX, originY);
+			else if(!mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
+				canvas.scale(1, mScaleFactor, originX, originY);
+		}
 		/** Set canvas translate **/
-		canvas.translate(translateX / mScaleFactor, 0);
+		if(mRenderer.getGraphIsPannable()) {
+			if(mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
+				canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
+			else if(mRenderer.isGraphXPannable() && !mRenderer.isGraphYPannable())
+				canvas.translate(translateX / mScaleFactor, 0);
+			else if(!mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
+				canvas.translate(0, translateY / mScaleFactor);
+		}
 
 		int tempX = originX + (int) padding;
 		int heightBar;
@@ -306,8 +320,12 @@ public class BarGraphView extends View {
 				canvas.save();
 				canvas.rotate(xAxisLabelRotation, tempX + padding * 2,
 						(originY + xAxisLabelDistance));
-				canvas.drawText(barLabels.get(counter), tempX + padding * 2,
-						originY + xAxisLabelDistance, xAxesLabelTextPaint);
+				if(barLabels != null && barLabels.size() > 0) 
+					canvas.drawText(barLabels.get(counter), tempX + padding * 2,
+							originY + xAxisLabelDistance, xAxesLabelTextPaint);
+				else 
+					canvas.drawText(String.valueOf(counter), tempX + padding * 2,
+							originY + xAxisLabelDistance, xAxesLabelTextPaint);
 				canvas.restore();
 				tempX = (int) (tempX + padding * 5);
 			}
@@ -340,9 +358,14 @@ public class BarGraphView extends View {
 					canvas.rotate(xAxisLabelRotation, (float) (tempX + 2.5
 							* graphGrouping * padding),
 							(originY + xAxisLabelDistance));
-					canvas.drawText(barLabels.get(barLabelsCounter++),
-							(float) (tempX + 2.5 * graphGrouping * padding),
-							originY + xAxisLabelDistance, xAxesLabelTextPaint);
+					if(barLabels != null && barLabels.size() > 0) 
+						canvas.drawText(barLabels.get(barLabelsCounter++),
+								(float) (tempX + 2.5 * graphGrouping * padding),
+								originY + xAxisLabelDistance, xAxesLabelTextPaint);
+					else
+						canvas.drawText(String.valueOf(counter),
+								(float) (tempX + 2.5 * graphGrouping * padding),
+								originY + xAxisLabelDistance, xAxesLabelTextPaint);
 					canvas.restore();
 				}
 			}
@@ -379,9 +402,14 @@ public class BarGraphView extends View {
 					canvas.rotate(xAxisLabelRotation,
 							(float) (tempX + 2 * padding),
 							(originY + xAxisLabelDistance));
-					canvas.drawText(barLabels.get(barLabelsCounter++),
-							(float) (tempX + 2 * padding), originY
-									+ xAxisLabelDistance, xAxesLabelTextPaint);
+					if(barLabels != null && barLabels.size() > 0) 
+						canvas.drawText(barLabels.get(barLabelsCounter++),
+								(float) (tempX + 2 * padding), originY
+										+ xAxisLabelDistance, xAxesLabelTextPaint);
+					else
+						canvas.drawText(String.valueOf(counter),
+								(float) (tempX + 2 * padding), originY
+										+ xAxisLabelDistance, xAxesLabelTextPaint);
 					canvas.restore();
 				}
 			}
@@ -437,9 +465,14 @@ public class BarGraphView extends View {
 					canvas.rotate(xAxisLabelRotation,
 							(float) (tempX + 2 * padding),
 							(originY + xAxisLabelDistance));
-					canvas.drawText(barLabels.get(barLabelsCounter++),
-							(float) (tempX + 2 * padding), originY
-									+ xAxisLabelDistance, xAxesLabelTextPaint);
+					if(barLabels != null && barLabels.size() > 0) 
+						canvas.drawText(barLabels.get(barLabelsCounter++),
+								(float) (tempX + 2 * padding), originY
+										+ xAxisLabelDistance, xAxesLabelTextPaint);
+					else
+						canvas.drawText(String.valueOf(counter),
+								(float) (tempX + 2 * padding), originY
+										+ xAxisLabelDistance, xAxesLabelTextPaint);
 					canvas.restore();
 					if (counter > 0 && counter % 6 == 0) {
 						currentSecondXLabelValue = (float) (tempX + 2 * padding);

@@ -10,6 +10,7 @@ import java.util.Collections;
  */
 public class LineGraphHelper {
 	
+	private LineGraphRenderer mRenderer;
 	private ArrayList<LineGraphObject> mGraphPlotDeatils = new ArrayList<LineGraphObject>(0);
 	
 	private int mMaxPlotPoints = 0;
@@ -17,8 +18,9 @@ public class LineGraphHelper {
 	private int MIN_VALUE = 0;
 	private int AVERAGE = 0;
 	
-	public LineGraphHelper(ArrayList<LineGraphObject> graphPlotDeatils) {
-		mGraphPlotDeatils.addAll(graphPlotDeatils);
+	public LineGraphHelper(LineGraphRenderer renderer) {
+		mRenderer = renderer;
+		mGraphPlotDeatils.addAll(mRenderer.getGraphPlotDeatils());
 		ArrayList<Integer> totalPlotPoints = new ArrayList<Integer>(0);
 		ArrayList<Integer> plotPoints = new ArrayList<Integer>(0);
 		int plotValuesSum = 0;

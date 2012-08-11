@@ -60,18 +60,36 @@ public class LineChartView extends View {
 	private ArrayList<LineGraphObject> mGraphPlotDeatils = new ArrayList<LineGraphObject>();
 
 	private LineGraphRenderer mRenderer;
+	
+	// These two variables keep track of the X and Y coordinate of the finger
+	// when it first
+	// touches the screen
+	private float startX = 0f;
+	private float startY = 0f;
+
+	// These two variables keep track of the amount we need to translate the
+	// canvas along the X
+	// and the Y coordinate
+	private float translateX = 0f;
+	private float translateY = 0f;
+
+	// These two variables keep track of the amount we translated the X and Y
+	// coordinates, the last time we
+	// panned.
+	private float previousTranslateX = 0f;
+	private float previousTranslateY = 0f;
 
 	public LineChartView(Context context, LineGraphRenderer renderer) {
 		super(context);
 		mRenderer = renderer;
 		mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		mHelper = new LineGraphHelper(renderer);
 		initView(renderer);
 		initPaint(renderer);
 	}
 
 	private void initView(LineGraphRenderer renderer) {
 		mGraphPlotDeatils = renderer.getGraphPlotDeatils();
-		mHelper = new LineGraphHelper(mGraphPlotDeatils);
 		mGraphXAxesLabels = renderer.getGraphXAxesLabels();
 		mScaleFactor = renderer.getScaleFactor();
 		mWidth = renderer.getWidth();
@@ -92,13 +110,13 @@ public class LineChartView extends View {
 		
 		mGridPaintFull.setColor(renderer.getAxesColor());
 		mGridPaintFull.setStyle(Paint.Style.FILL);
-		mGridPaintFull.setStrokeWidth(1.0f);
+		mGridPaintFull.setStrokeWidth(renderer.getGraphLineThickness());
 		
 		mTitlePaint.setTextAlign(Paint.Align.CENTER);
 		mTitlePaint.setColor(renderer.getTitleTextColor());
 		mTitlePaint.setTextSize(renderer.getTitleTextSize());
 		
-		mYAxesLabelTextPaint.setTextAlign(Paint.Align.CENTER);
+		mYAxesLabelTextPaint.setTextAlign(Paint.Align.RIGHT);
 		mYAxesLabelTextPaint.setColor(renderer.getYAxesTextColor());
 		mYAxesLabelTextPaint.setTextSize(renderer.getYAxesTextSize());
 		
@@ -127,6 +145,46 @@ public class LineChartView extends View {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if (mRenderer.isGraphPannable()) {
+			switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			case MotionEvent.ACTION_UP:
+				// All fingers went up, so let’s save the value of translateX
+				// and translateY into previousTranslateX and
+				// previousTranslate
+				previousTranslateX = translateX;
+				previousTranslateY = translateY;
+				break;
+
+			case MotionEvent.ACTION_DOWN:
+				// We assign the current X and Y coordinate of the finger to
+				// startX and startY minus the previously translated
+				// amount for each coordinates This works even when we are
+				// translating the first time because the initial
+				// values for these two variables is zero.
+				startX = event.getX() - previousTranslateX;
+				startY = event.getY() - previousTranslateY;
+				break;
+
+			case MotionEvent.ACTION_MOVE:
+				translateX = event.getX() - startX;
+				translateY = event.getY() - startY;
+				// We cannot use startX and startY directly because we have
+				// adjusted their values using the previous translation values.
+				// This is why we need to add those values to startX and startY
+				// so that we can get the actual coordinates of the finger.
+				double distance = Math
+						.sqrt(Math.pow(event.getX()
+								- (startX + previousTranslateX), 2)
+								+ Math.pow(event.getY()
+										- (startY + previousTranslateY), 2));
+				if (distance > 0) {
+					distance *= mScaleFactor;
+				}
+				break;
+			}
+			invalidate();
+		}
+		
 		if (mRenderer.isGraphZoomable()) {
 			mScaleDetector.onTouchEvent(event);
 		}
@@ -147,7 +205,47 @@ public class LineChartView extends View {
 		int minY = mHelper.getMinValue();
 		float graphAverage = mHelper.getAverage();
 		
-		/** Plot Y Axes and labels **/
+		/** Draw Y Axes **/
+		mCanvas.drawLine((float) (mGapLeft), 
+				(float) (mHeight - mGapBottom), 
+				(float) (mWidth - mGapRight), 
+				(mHeight - mGapBottom), 
+				mGridPaintFull);
+		
+		/** Draw the X Axes **/
+		mCanvas.drawLine((float) mGapLeft, 
+				mGapTop, 
+				(float) mGapLeft, 
+				(float) (mHeight - mGapBottom), 
+				mGridPaintFull);
+		
+		/** Scale the canvas **/
+		canvas.save();
+		/** Set the clip area **/
+		canvas.clipRect((mGapLeft - ((String.valueOf(maxY).length() * mRenderer.getXAxesTextSize()) * mScaleFactor)), 
+				mGapTop, (mWidth - mGapRight), 
+				(mHeight - mGapBottom) + (mRenderer.getXAxesTextSize() * mScaleFactor), 
+				android.graphics.Region.Op.REPLACE);
+		/** Set canvas zoom **/
+		if(mRenderer.isGraphZoomable()) {
+			if(mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
+				canvas.scale(mScaleFactor, mScaleFactor, (float) mGapLeft, (float) (mHeight - mGapBottom));
+			else if(mRenderer.isGraphXZoomable() && !mRenderer.isGraphYZoomable())
+				canvas.scale(mScaleFactor, 1, (float) mGapLeft, (float) (mHeight - mGapBottom));
+			else if(!mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
+				canvas.scale(1, mScaleFactor, (float) mGapLeft, (float) (mHeight - mGapBottom));
+		}
+		/** Set canvas translate **/
+		if(mRenderer.isGraphPannable()) {
+			if(mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
+				canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
+			else if(mRenderer.isGraphXPannable() && !mRenderer.isGraphYPannable())
+				canvas.translate(translateX / mScaleFactor, 0);
+			else if(!mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
+				canvas.translate(0, translateY / mScaleFactor);
+		}
+		
+		/** Plot Y Axes labels **/
 		float step = (float) (maxY - minY)
 				/ (float) (mRenderer.getMaxYAxesLables());
 		float stepY = (float) (mHeight - mGapTop - mGapBottom)
@@ -158,61 +256,51 @@ public class LineChartView extends View {
 			OldY = (float) (mHeight - mGapBottom - y);
 			NewX = (float) (mWidth - mGapRight);
 			NewY = (float) (mHeight - mGapBottom - y);
-			if (counter == 0)
-				mCanvas.drawLine(OldX, OldY, NewX, NewY, mGridPaintFull);
-			else {
+			if (counter > 0) 
 				if(mRenderer.isGridVisible())
 					mCanvas.drawLine(OldX, OldY, NewX, NewY, mGridPaintDot);
-			}  
 			
 			value = (int) minY + (int) (counter * step);
 			StrLablel = String.valueOf(value);
 			mCanvas.drawText(StrLablel, mGapLeft - 10, NewY, mYAxesLabelTextPaint);
 		}
 
-		/** Plot X Axes and labels **/
+		/** Plot X Axes labels **/
 		float stepX = (float) (mWidth - mGapLeft - mGapRight)
 				/ (float) (mRenderer.getMaxXAxesLabels() - 1);
 		float IndexStep = (float) mGraphXAxesLabels.size()
 				/ (float) mRenderer.getMaxXAxesLabels();
 		NewY = (float) (mHeight - mGapBottom);
 
-		for (int j = 0; j < mRenderer.getMaxXAxesLabels(); j++) {
-			Index = (int) ((float) (j) * (float) IndexStep);
+		for (int counter = 0; counter < mRenderer.getMaxXAxesLabels(); counter++) {
+			Index = (int) ((float) (counter) * (float) IndexStep);
 			if (Index >= mGraphXAxesLabels.size())
 				Index = mGraphXAxesLabels.size() - 1;
-			if (j == mRenderer.getMaxXAxesLabels() - 1)
+			if (counter == mRenderer.getMaxXAxesLabels() - 1)
 				Index = mGraphXAxesLabels.size() - 1;
-			NewX = (float) ((float) mGapLeft + (float) (j * stepX));
+			NewX = (float) ((float) mGapLeft + (float) (counter * stepX));
 			
-			if (j == 0)
-				mCanvas.drawLine(NewX, mGapTop, NewX, NewY, mGridPaintFull);
-			else {
+			if (counter > 0)
 				if(mRenderer.isGridVisible())
 					mCanvas.drawLine(NewX, mGapTop, NewX, NewY + 3, mGridPaintDot);
-			}
+			
 			/** Check if the user has passed the list of custom labels for x-axes**/
 			if (mGraphXAxesLabels != null && mGraphXAxesLabels.size() > 0) {
-				mXAxesLabelTextPaint.getTextBounds(mGraphXAxesLabels.get(j), 0,
-						mGraphXAxesLabels.get(j).length(), TextRect);
+				mXAxesLabelTextPaint.getTextBounds(mGraphXAxesLabels.get(counter), 0,
+						mGraphXAxesLabels.get(counter).length(), TextRect);
 				NewX = NewX - TextRect.right / 2;
-				mCanvas.drawText(mGraphXAxesLabels.get(j), NewX,
+				mCanvas.drawText(mGraphXAxesLabels.get(counter), NewX,
 						(mHeight - mGapBottom) + 13, mXAxesLabelTextPaint);
 			} else {
-				mXAxesLabelTextPaint.getTextBounds(String.valueOf(j), 0,
-						String.valueOf(j).length(), TextRect);
+				mXAxesLabelTextPaint.getTextBounds(String.valueOf(counter), 0,
+						String.valueOf(counter).length(), TextRect);
 				NewX = NewX - TextRect.right / 2;
-				mCanvas.drawText(String.valueOf(j), NewX,
+				mCanvas.drawText(String.valueOf(counter), NewX,
 						(mHeight - mGapBottom) + 13, mXAxesLabelTextPaint);
 			}
 		}
 		
-		/** Scale the canvas **/
-		canvas.save();
-		/** Set canvas zoom **/
-		canvas.scale(mScaleFactor, mScaleFactor, mRenderer.getOriginX(), mRenderer.getOriginY());
-		
-		/** Plot the line grpah **/
+		/** Plot the line graph **/
 		float drawOffsetX = 0.0f, drawOffsetY = 0.0f, pointStepX = 0.0f, pointStepY = 0.0f;
 		/** First loop for the number of line graph that needs to be drawn **/
 		for (int linesCounter = 0; linesCounter < mGraphPlotDeatils.size(); linesCounter++) {
@@ -264,7 +352,6 @@ public class LineChartView extends View {
 		
 		// Restore canvas after zooming and translating
 		canvas.restore();
-		
 		/** Set the graph title **/
 		if (mRenderer.getGraphTitle() != null
 				&& mRenderer.getGraphTitle().length() > 0) {
