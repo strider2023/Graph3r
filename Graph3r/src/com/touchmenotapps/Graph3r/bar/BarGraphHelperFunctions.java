@@ -12,9 +12,10 @@ import android.graphics.Rect;
 import android.graphics.Paint.Align;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The BarGraphHelperFunctions contains important helper functions that are used to draw
+ * the bar graph.
  */
 public class BarGraphHelperFunctions {
 		

@@ -1,9 +1,9 @@
 package com.touchmenotapps.Graph3r.line;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The LineGraphObject defines a line graph plot. 
  */
 public class LineGraphObject {
 

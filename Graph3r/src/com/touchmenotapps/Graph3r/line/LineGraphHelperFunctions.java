@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The LineGraphHelperFunctions contains important helper functions that are used to draw
+ * the line graph.
  */
-public class LineGraphHelper {
+public class LineGraphHelperFunctions {
 	
 	private LineGraphRenderer mRenderer;
 	private ArrayList<LineGraphObject> mGraphPlotDeatils = new ArrayList<LineGraphObject>(0);
@@ -18,7 +19,7 @@ public class LineGraphHelper {
 	private int MIN_VALUE = 0;
 	private int AVERAGE = 0;
 	
-	public LineGraphHelper(LineGraphRenderer renderer) {
+	public LineGraphHelperFunctions(LineGraphRenderer renderer) {
 		mRenderer = renderer;
 		mGraphPlotDeatils.addAll(mRenderer.getGraphPlotDeatils());
 		ArrayList<Integer> totalPlotPoints = new ArrayList<Integer>(0);

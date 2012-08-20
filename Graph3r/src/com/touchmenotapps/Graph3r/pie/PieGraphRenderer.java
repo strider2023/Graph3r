@@ -7,16 +7,25 @@ import android.graphics.Color;
 import android.view.View;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+/**
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The PieGraphRenderer class is used to render the pie graph view on screen
+ * and customize its appearance.
+ */
 public class PieGraphRenderer {
+	
+	private final int ID_LEGENDS_HOLDER = 2341;
 
 	private final int DEFAULT_PIE_SIZE = 200;
 
 	private Context mContext;
 
-	private ArrayList<PieChartObject> graphData = new ArrayList<PieChartObject>();
+	private ArrayList<PieGraphObject> graphData = new ArrayList<PieGraphObject>();
 
 	private int mPiePadding = 0;
 
@@ -42,22 +51,26 @@ public class PieGraphRenderer {
 
 	private boolean graphIsPannable = false;
 
-	public PieGraphRenderer(View parentView, ArrayList<PieChartObject> data) {
+	public PieGraphRenderer(View parentView, ArrayList<PieGraphObject> data) {
 		mContext = parentView.getContext();
 		graphData.addAll(data);
 		mPieChartHeight = parentView.getHeight();
 		mPieChartWidth = parentView.getWidth();
 	}
 
-	public View renderGraph() {
+	public View renderGraph() throws Exception  {
 		/** Create the view holder **/
-		LinearLayout graphLayout = new LinearLayout(mContext);
+		RelativeLayout graphLayout = new RelativeLayout(mContext);
 		LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		graphLayout.setLayoutParams(params);
-		graphLayout.setOrientation(LinearLayout.VERTICAL);
 		/** Create the legends holder **/
 		HorizontalScrollView legendsLayout = new HorizontalScrollView(mContext);
 		legendsLayout.setHorizontalScrollBarEnabled(false);
+		RelativeLayout.LayoutParams legendsHolderParams = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+		legendsHolderParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		legendsLayout.setLayoutParams(legendsHolderParams);
+		legendsLayout.setId(ID_LEGENDS_HOLDER);
 		/** Add legends content **/
 		if(graphData.size() > 0) {
 			LinearLayout legendContent = new LinearLayout(mContext);
@@ -78,11 +91,16 @@ public class PieGraphRenderer {
 		/** Add legends to the view holder **/
 		graphLayout.addView(legendsLayout);
 		/** Add graph to the view holder **/
-		graphLayout.addView(new PieChartView(mContext, this));
+		RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
+				RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+		graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
+		View graphView = new PieGraphView().getGraphView(mContext, this);
+		graphView.setLayoutParams(graphHolderParams);
+		graphLayout.addView(graphView);
 		return graphLayout;
 	}
 
-	public int getTotalValue(ArrayList<PieChartObject> data) {
+	public int getTotalValue(ArrayList<PieGraphObject> data) {
 		int total = 0;
 		for (int counter = 0; counter < data.size(); counter++) {
 			total += data.get(counter).getValue();
@@ -93,7 +111,7 @@ public class PieGraphRenderer {
 	/**
 	 * @return the graphData
 	 */
-	public ArrayList<PieChartObject> getGraphData() {
+	public ArrayList<PieGraphObject> getGraphData() {
 		return graphData;
 	}
 

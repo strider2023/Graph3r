@@ -3,9 +3,9 @@ package com.touchmenotapps.Graph3r.bar;
 import android.graphics.Rect;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	
  */
 public class BarGraphObject {
 

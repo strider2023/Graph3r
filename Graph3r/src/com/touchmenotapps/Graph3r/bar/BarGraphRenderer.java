@@ -1,6 +1,5 @@
 package com.touchmenotapps.Graph3r.bar;
 
-
 import java.util.ArrayList;
 
 import com.touchmenotapps.Graph3r.Graph;
@@ -8,13 +7,22 @@ import com.touchmenotapps.Graph3r.Graph;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The BarGraphRenderer class is used to render the bar graph view on screen
+ * and customize its appearance.
+ * TODO Create a better defined graph object.
  */
 public class BarGraphRenderer implements BarGraphInterface {
+	
+	private final int ID_LEGENDS_HOLDER = 72387;
 	
 	private Context mContext;
 	
@@ -80,6 +88,8 @@ public class BarGraphRenderer implements BarGraphInterface {
 	
 	private boolean runningOnTablet = false;
 	
+	private boolean mShowGraphLegends = false;
+	
 	/**
 	 * 
 	 * @param parentView
@@ -108,8 +118,50 @@ public class BarGraphRenderer implements BarGraphInterface {
 	 * 
 	 * @return
 	 */
-	public View renderGraph() {
-		return new BarGraphView(mContext, this);
+	public View renderGraph() throws Exception {
+		if(mShowGraphLegends) {
+			/** Create the view holder **/
+			RelativeLayout graphLayout = new RelativeLayout(mContext);
+			LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			graphLayout.setLayoutParams(params);
+			/** Create the legends holder **/
+			HorizontalScrollView legendsLayout = new HorizontalScrollView(mContext);
+			legendsLayout.setHorizontalScrollBarEnabled(false);
+			RelativeLayout.LayoutParams legendsHolderParams = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			legendsHolderParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			legendsLayout.setLayoutParams(legendsHolderParams);
+			legendsLayout.setId(ID_LEGENDS_HOLDER);
+			/** Add legends content **/
+			//TODO Optimize code to show gradient
+			if(barLabels.size() > 0) {
+				LinearLayout legendContent = new LinearLayout(mContext);
+				legendContent.setOrientation(LinearLayout.HORIZONTAL);
+				for(int i = 0; i < barLabels.size(); i++) {
+					TextView legendText = new TextView(mContext);
+					LayoutParams contentParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+					contentParams.setMargins(5, 5, 5, 5);
+					legendText.setText(barLabels.get(i));
+					legendText.setBackgroundColor(color.get(i)[0]);
+					legendText.setTextColor(Color.WHITE);
+					legendText.setLayoutParams(contentParams);
+					legendText.setPadding(5, 5, 5, 5);
+					legendContent.addView(legendText);
+				}
+				legendsLayout.addView(legendContent);
+			}
+			/** Add legends to the view holder **/
+			graphLayout.addView(legendsLayout);
+			/** Add graph to the view holder **/
+			RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
+			View graphView = new BarGraphView().getGraphView(mContext, this); 
+			graphView.setLayoutParams(graphHolderParams);
+			graphLayout.addView(graphView);
+			return graphLayout;
+		} else
+			return new BarGraphView().getGraphView(mContext, this);
 	}
 		
 	/**
@@ -220,14 +272,14 @@ public class BarGraphRenderer implements BarGraphInterface {
 	/**
 	 * @param mAX_ZOOM the mAX_ZOOM to set
 	 */
-	public void setMAX_ZOOM(int mAX_ZOOM) {
+	public void setMaxZoom(int mAX_ZOOM) {
 		MAX_ZOOM = mAX_ZOOM;
 	}
 
 	/**
 	 * @param mIN_ZOOM the mIN_ZOOM to set
 	 */
-	public void setMIN_ZOOM(int mIN_ZOOM) {
+	public void setMinZoom(int mIN_ZOOM) {
 		MIN_ZOOM = mIN_ZOOM;
 	}
 
@@ -262,7 +314,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean isRunningOnTablet() {
 		return runningOnTablet;
 	}
-
 	
 	/**
 	 * @param runningOnTablet the runningOnTablet to set
@@ -270,7 +321,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public void setRunningOnTablet(boolean runningOnTablet) {
 		this.runningOnTablet = runningOnTablet;
 	}
-
 	
 	/*****************************************************************************************************************************
 	 * Getter Methods
@@ -405,7 +455,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean getGraphIsPannable() {
 		return graphIsPannable;
 	}
-
 	
 	/**
 	 * @return the graphXZoomable
@@ -413,7 +462,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean isGraphXZoomable() {
 		return graphXZoomable;
 	}
-
 	
 	/**
 	 * @return the graphYZoomable
@@ -421,7 +469,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean isGraphYZoomable() {
 		return graphYZoomable;
 	}
-
 	
 	/**
 	 * @return the graphXPannable
@@ -429,7 +476,6 @@ public class BarGraphRenderer implements BarGraphInterface {
 	public boolean isGraphXPannable() {
 		return graphXPannable;
 	}
-
 	
 	/**
 	 * @return the graphYPannable

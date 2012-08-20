@@ -5,14 +5,21 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
+import android.widget.HorizontalScrollView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.LinearLayout.LayoutParams;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The LineGraphRenderer class is used to render the line graph view on screen
+ * and customize its appearance.
  */
-
 public class LineGraphRenderer {
+	
+	private final int ID_LEGENDS_HOLDER = 72638;
 	
 	public static final int LINE_GRAPH_STYLE_NORMAL = 0;
 	
@@ -66,7 +73,7 @@ public class LineGraphRenderer {
 	
 	private int mYAxesTextSize = 8;
 	
-	private int mYAxesTestColor = Color.WHITE;
+	private int mYAxesTextColor = Color.WHITE;
 	
 	private int mTitleTextColor = Color.WHITE;
 	
@@ -102,10 +109,53 @@ public class LineGraphRenderer {
 		this.mHeight = parentView.getHeight();
 		this.mOriginX = parentView.getWidth()/10;
 		this.mOriginY = parentView.getHeight()/6;
+		//Set the max number of x-axes labels
+		this.mMaxXAxesLabels = mGraphPlotDeatils.get(0).getPlotPoints().length;
 	}	
 
-	public View renderGraph() {
-		return new LineChartView(mContext, this);
+	public View renderGraph() throws Exception {
+		if(mShowLegends) {
+			/** Create the view holder **/
+			RelativeLayout graphLayout = new RelativeLayout(mContext);
+			LayoutParams params = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			graphLayout.setLayoutParams(params);
+			/** Create the legends holder **/
+			HorizontalScrollView legendsLayout = new HorizontalScrollView(mContext);
+			legendsLayout.setHorizontalScrollBarEnabled(false);
+			RelativeLayout.LayoutParams legendsHolderParams = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			legendsHolderParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+			legendsLayout.setLayoutParams(legendsHolderParams);
+			legendsLayout.setId(ID_LEGENDS_HOLDER);
+			/** Add legends content **/
+			if(mGraphPlotDeatils.size() > 0) {
+				LinearLayout legendContent = new LinearLayout(mContext);
+				legendContent.setOrientation(LinearLayout.HORIZONTAL);
+				for(int i = 0; i < mGraphPlotDeatils.size(); i++) {
+					TextView legendText = new TextView(mContext);
+					LayoutParams contentParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+					contentParams.setMargins(5, 5, 5, 5);
+					legendText.setText(mGraphPlotDeatils.get(i).getPlotDescription());
+					legendText.setBackgroundColor(mGraphPlotDeatils.get(i).getPlotColor());
+					legendText.setTextColor(Color.WHITE);
+					legendText.setLayoutParams(contentParams);
+					legendText.setPadding(5, 5, 5, 5);
+					legendContent.addView(legendText);
+				}
+				legendsLayout.addView(legendContent);
+			}
+			/** Add legends to the view holder **/
+			graphLayout.addView(legendsLayout);
+			/** Add graph to the view holder **/
+			RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
+					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
+			View graphView = new LineGraphView().getGraphView(mContext, this); 
+			graphView.setLayoutParams(graphHolderParams);
+			graphLayout.addView(graphView);
+			return graphLayout;
+		} else
+			return new LineGraphView().getGraphView(mContext, this);
 	}
 	
  	public void setGraphWidthAndHeight(int width, int height) {
@@ -304,14 +354,14 @@ public class LineGraphRenderer {
 	 * @return the mYAxesTestColor
 	 */
 	public int getYAxesTextColor() {
-		return mYAxesTestColor;
+		return mYAxesTextColor;
 	}
 
 	/**
 	 * @param mYAxesTestColor the mYAxesTestColor to set
 	 */
-	public void setYAxesTestColor(int mYAxesTestColor) {
-		this.mYAxesTestColor = mYAxesTestColor;
+	public void setYAxesTextColor(int mYAxesTestColor) {
+		this.mYAxesTextColor = mYAxesTestColor;
 	}
 
 	/**
@@ -368,6 +418,7 @@ public class LineGraphRenderer {
 	 */
 	public void setGraphXAxesLabels(ArrayList<String> mGraphXAxesLabels) {
 		this.mGraphXAxesLabels = mGraphXAxesLabels;
+		this.mMaxXAxesLabels = mGraphXAxesLabels.size();
 	}
 
 	/**

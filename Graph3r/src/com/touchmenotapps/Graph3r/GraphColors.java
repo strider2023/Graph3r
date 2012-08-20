@@ -1,9 +1,10 @@
 package com.touchmenotapps.Graph3r;
 
 /**
- * 
- * @author Arindam Nath
- *
+ * @version Graph3r Alpha 2
+ * @author Arindam Nath (strider2023@gmail.com)
+ * @Description	The GraphColors has definitions of ICS colors for users using this Library
+ * for gingerbread platforms.
  */
 public class GraphColors {
 	
