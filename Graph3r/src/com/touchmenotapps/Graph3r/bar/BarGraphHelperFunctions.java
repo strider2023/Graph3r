@@ -12,7 +12,7 @@ import android.graphics.Rect;
 import android.graphics.Paint.Align;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The BarGraphHelperFunctions contains important helper functions that are used to draw
  * the bar graph.
@@ -54,16 +54,16 @@ public class BarGraphHelperFunctions {
 		mGridPaint.setColor(color);
 		mGridPaint.setTextSize(labelSize);
 		for (int counter = 1; counter <= numLines; counter++) {			
-			if (maxVal < 10) {
-				canvas.drawText((maxVal * counter / numLines) + "", originX - 5,
+			if (maxVal < 10) 
+				canvas.drawText(String.valueOf((maxVal * counter / numLines)), originX - 5,
 						originY - (scale * counter) + 5, mGridPaint);
-			} else if (maxVal < 100) {
-				canvas.drawText((maxVal * counter / numLines) + "", originX - 15,
+			else if (maxVal < 100) 
+				canvas.drawText(String.valueOf((maxVal * counter / numLines)), originX - 15,
 						originY - (scale * counter) + 5, mGridPaint);
-			} else {
-				canvas.drawText((maxVal * counter / numLines) + "", originX - 25,
+			else 
+				canvas.drawText(String.valueOf((maxVal * counter / numLines)), originX - 25,
 						originY - (scale * counter) + 5, mGridPaint);
-			}
+				
 			Rect grid = new Rect(originX,
 					(int) (originY - 1 - (scale * counter)), _width,
 					(int) (originY - (scale * counter)));

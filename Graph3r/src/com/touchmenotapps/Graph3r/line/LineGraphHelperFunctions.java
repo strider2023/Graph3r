@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphHelperFunctions contains important helper functions that are used to draw
  * the line graph.

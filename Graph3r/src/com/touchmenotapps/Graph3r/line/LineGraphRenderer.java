@@ -12,10 +12,11 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphRenderer class is used to render the line graph view on screen
  * and customize its appearance.
+ * TODO Add option for legends text size.
  */
 public class LineGraphRenderer {
 	
@@ -26,8 +27,6 @@ public class LineGraphRenderer {
 	public static final int LINE_GRAPH_STYLE_FILL = 1;
 	
 	private final int DEFAULT_SIZE = 240;
-	
-	private int mStyle = LINE_GRAPH_STYLE_NORMAL; 
 	
 	private float mScaleFactor = 1.0f;
 
@@ -41,15 +40,7 @@ public class LineGraphRenderer {
 	
 	private boolean mGraphIsZoomable = false;
 	
-	private boolean graphXZoomable = false;
-	
-	private boolean graphYZoomable = false;
-	
 	private boolean mGraphIsPannable = false;
-	
-	private boolean graphXPannable = false;
-	
-	private boolean graphYPannable = false;
 	
 	private int mGraphPadding = 5;
 		
@@ -72,6 +63,8 @@ public class LineGraphRenderer {
 	private int mXAxesTextColor = Color.WHITE;
 	
 	private int mYAxesTextSize = 8;
+	
+	private String mYAxesText = "";
 	
 	private int mYAxesTextColor = Color.WHITE;
 	
@@ -107,7 +100,7 @@ public class LineGraphRenderer {
 		this.mGraphPlotDeatils = mGraphPlotDeatils;
 		this.mWidth = parentView.getWidth();
 		this.mHeight = parentView.getHeight();
-		this.mOriginX = parentView.getWidth()/10;
+		this.mOriginX = parentView.getWidth()/9;
 		this.mOriginY = parentView.getHeight()/6;
 		//Set the max number of x-axes labels
 		this.mMaxXAxesLabels = mGraphPlotDeatils.get(0).getPlotPoints().length;
@@ -150,6 +143,8 @@ public class LineGraphRenderer {
 			RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
 			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
+			/** Reset the graph height based on user legends layout height **/
+			setGraphWidthAndHeight(getWidth(), getHeight() - legendsLayout.getHeight());
 			View graphView = new LineGraphView().getGraphView(mContext, this); 
 			graphView.setLayoutParams(graphHolderParams);
 			graphLayout.addView(graphView);
@@ -161,7 +156,7 @@ public class LineGraphRenderer {
  	public void setGraphWidthAndHeight(int width, int height) {
 		this.mWidth = width;
 		this.mHeight = height;
-		this.mOriginX = mWidth/10;
+		this.mOriginX = mWidth/9;
 		this.mOriginY = mWidth/6;
 	}
 	
@@ -171,17 +166,9 @@ public class LineGraphRenderer {
 	}
 
 	/**
-	 * @return the mStyle
-	 */
-	public int getStyle() {
-		return mStyle;
-	}
-
-	/**
 	 * @param mStyle the mStyle to set
 	 */
 	public void setStyle(int mStyle) {
-		this.mStyle = mStyle;
 		switch(mStyle) {
 			case LINE_GRAPH_STYLE_NORMAL:
 				mFillGraph = false;
@@ -230,10 +217,8 @@ public class LineGraphRenderer {
 	/**
 	 * @param mGraphIsZoomable the mGraphIsZoomable to set
 	 */
-	public void setGraphIsZoomable(boolean mGraphIsZoomable, boolean graphXZoomable, boolean graphYZoomable) {
+	public void setGraphIsZoomable(boolean mGraphIsZoomable) {
 		this.mGraphIsZoomable = mGraphIsZoomable;
-		this.graphXZoomable = graphXZoomable;
-		this.graphYZoomable = graphYZoomable;
 	}
 
 	/**
@@ -246,10 +231,8 @@ public class LineGraphRenderer {
 	/**
 	 * @param mGraphIsPannable the mGraphIsPannable to set
 	 */
-	public void setGraphIsPannable(boolean mGraphIsPannable, boolean graphXPannable, boolean graphYPannable) {
+	public void setGraphIsPannable(boolean mGraphIsPannable) {
 		this.mGraphIsPannable = mGraphIsPannable;
-		this.graphXPannable = graphXPannable;
-		this.graphYPannable = graphYPannable;
 	}
 
 	/**
@@ -589,30 +572,16 @@ public class LineGraphRenderer {
 	}
 	
 	/**
-	 * @return the graphXZoomable
+	 * @return the mYAxesText
 	 */
-	public boolean isGraphXZoomable() {
-		return graphXZoomable;
+	public String getYAxesText() {
+		return mYAxesText;
 	}
 
 	/**
-	 * @return the graphYZoomable
+	 * @param mYAxesText the mYAxesText to set
 	 */
-	public boolean isGraphYZoomable() {
-		return graphYZoomable;
-	}
-
-	/**
-	 * @return the graphXPannable
-	 */
-	public boolean isGraphXPannable() {
-		return graphXPannable;
-	}
-
-	/**
-	 * @return the graphYPannable
-	 */
-	public boolean isGraphYPannable() {
-		return graphYPannable;
+	public void setYAxesText(String mYAxesText) {
+		this.mYAxesText = mYAxesText;
 	}
 }

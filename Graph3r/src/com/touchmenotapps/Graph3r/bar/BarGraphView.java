@@ -19,10 +19,11 @@ import android.view.View;
 import android.widget.Toast;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The BarGraphView class implements all variation of Bar Graph, like 
  * 	Simple Bar Graph, Stacked Bar Graph and Grouped Bar Graph.
+ * TODO Check bug as to why the grid lines are disappearing.
  */
 public class BarGraphView {
 	
@@ -37,6 +38,12 @@ public class BarGraphView {
 	}
 	
 	private class BarGraph extends View {
+		
+		private final int BAR_HANDLER = 213;
+		
+		private final int X_AXES_LABEL_HANDLER = 9809;
+		
+		private final int Y_AXES_LABEL_HANDLER = 6876;
 
 		private BarGraphRenderer mRenderer;
 	
@@ -46,13 +53,13 @@ public class BarGraphView {
 	
 		private BarGraphHelperFunctions mFunctions;
 	
-		private ArrayList<BarGraphObject> barGraphObject = new ArrayList<BarGraphObject>();
+		private ArrayList<BarObject> barGraphObject = new ArrayList<BarObject>(0);
 	
-		private ArrayList<Double> data = new ArrayList<Double>();
+		private ArrayList<Double> data = new ArrayList<Double>(0);
 	
-		private ArrayList<int[]> color = new ArrayList<int[]>();
+		private ArrayList<int[]> color = new ArrayList<int[]>(0);
 	
-		private ArrayList<String> stackGroupLabels = new ArrayList<String>();
+		private ArrayList<String> stackGroupLabels = new ArrayList<String>(0);
 	
 		private int graphWidth;
 	
@@ -64,7 +71,7 @@ public class BarGraphView {
 	
 		private int xAxisLabelRotation;
 	
-		private ArrayList<String> barLabels = new ArrayList<String>();
+		private ArrayList<String> barLabels = new ArrayList<String>(0);
 	
 		private int graphGrouping;
 	
@@ -112,7 +119,7 @@ public class BarGraphView {
 			mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
 			initializeGraphRenderer();
 		}
-	
+		
 		private void initializeGraphRenderer() {
 			/** Set the paint properties **/
 			stackBarTextPaint.setColor(Color.BLACK);
@@ -122,16 +129,14 @@ public class BarGraphView {
 			barTextPaint.setColor(Color.BLACK);
 			barTextPaint.setTextAlign(Align.CENTER);
 			xAxesSecondGroupPaint.setColor(Color.BLACK);
+			barTextPaint.setTextSize(mRenderer.getXAxisLabelSize());
+			stackBarTextPaint.setTextSize(mRenderer.getXAxisLabelSize());
 			/** Set the default sizes based on mode. **/
 			if (!mRenderer.isRunningOnTablet()) {
 				xAxisLabelDistance = 10;
-				barTextPaint.setTextSize(10);
-				stackBarTextPaint.setTextSize(10);
 				xAxesSecondGroupPaint.setTextSize(10);
 			} else {
 				xAxisLabelDistance = 35;
-				barTextPaint.setTextSize(20);
-				stackBarTextPaint.setTextSize(20);
 				xAxesSecondGroupPaint.setTextSize(15);
 			}
 			/** Set the other graph data **/
@@ -174,7 +179,7 @@ public class BarGraphView {
 				invalidate();
 			}
 	
-			if (mRenderer.getGraphIsPannable()) {
+			if (mRenderer.getGraphIsPannable() && !graphIsScaling) {
 				switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_UP:
 					graphIsDragged = false;
@@ -196,20 +201,25 @@ public class BarGraphView {
 					break;
 	
 				case MotionEvent.ACTION_MOVE:
-					translateX = event.getX() - startX;
-					translateY = event.getY() - startY;
-					// We cannot use startX and startY directly because we have
-					// adjusted their values using the previous translation values.
-					// This is why we need to add those values to startX and startY
-					// so that we can get the actual coordinates of the finger.
-					double distance = Math
-							.sqrt(Math.pow(event.getX()
-									- (startX + previousTranslateX), 2)
-									+ Math.pow(event.getY()
-											- (startY + previousTranslateY), 2));
-					if (distance > 0) {
-						graphIsDragged = true;
-						distance *= mScaleFactor;
+					if(((event.getY() - startY)/ mScaleFactor) >= 0 
+						&& ((event.getX() - startX)/ mScaleFactor) <= 5
+						&& ((event.getY() - startY)/ mScaleFactor) <= (graphHeight - graphOriginY - (70 * mScaleFactor))
+						&& ((event.getX() - startX)/ mScaleFactor) >= -(graphWidth - graphOriginX - (70 * mScaleFactor))) {
+						translateX = event.getX() - startX;
+						translateY = event.getY() - startY;
+						// We cannot use startX and startY directly because we have
+						// adjusted their values using the previous translation values.
+						// This is why we need to add those values to startX and startY
+						// so that we can get the actual coordinates of the finger.
+						double distance = Math
+								.sqrt(Math.pow(event.getX()
+										- (startX + previousTranslateX), 2)
+										+ Math.pow(event.getY()
+												- (startY + previousTranslateY), 2));
+						if (distance > 0) {
+							graphIsDragged = true;
+							distance *= mScaleFactor;
+						}
 					}
 					break;
 				}
@@ -232,11 +242,11 @@ public class BarGraphView {
 			if (getWidth() - _width < 10)
 				_width = getWidth() - 20;
 			// set the top extent of graph
-			int _height = (int) (getHeight() - graphOriginY - graphHeight);
-			if (_height < 20)
-				_height = 20;
+			int _height = 15;
+			if (mRenderer.isRunningOnTablet())
+				_height = 30;
 			int originX = graphOriginX; // set the left hand extent
-			int originY = getHeight() - graphOriginY; // set the bottom extent
+			int originY = graphHeight - graphOriginY; // set the bottom extent
 	
 			float padding;
 			if (mRenderer.getStyle() == Graph.STYLE_BAR_NORMAL || mRenderer.getStyle() == Graph.STYLE_BAR_GROUPED)
@@ -267,11 +277,14 @@ public class BarGraphView {
 					
 			/** Draw grid parallel to X-Axis **/
 			if (mRenderer.getDrawGridLines()) {
+				canvas.save();
+				graphInputHandler(canvas, originX, _height, _width, originY, Y_AXES_LABEL_HANDLER);
 				mFunctions.drawXAxisGrid(canvas, 
 				mRenderer.getXAxisColor(), 
 				mRenderer.getYAxisLabelSize(), 
 				originX, originY, _width, maxVal, 
-				ratio, 10); //TODO Get number of grid lines input from user
+				ratio, mRenderer.getGraphNumXAxesLabels()); 
+				canvas.restore();
 			}
 					
 			/** Draw Y-axis label **/
@@ -280,31 +293,7 @@ public class BarGraphView {
 					originX, originY, _height, getHeight(), 
 					maxVal, 
 					mRenderer.isRunningOnTablet());
-			
-			/** Scale the canvas **/
-			canvas.save();
-			/** Clip the cavas in the drawn graph area **/
-			if(mRenderer.getGraphIsZoomable() || mRenderer.getGraphIsPannable())
-				canvas.clipRect(originX, (int) (_height), _width, originY+ xAxisLabelDistance + 15, android.graphics.Region.Op.REPLACE);
-			/** Set canvas zoom **/
-			if(mRenderer.getGraphIsZoomable()) {
-				if(mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
-					canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
-				else if(mRenderer.isGraphXZoomable() && !mRenderer.isGraphYZoomable())
-					canvas.scale(mScaleFactor, 1, originX, originY);
-				else if(!mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
-					canvas.scale(1, mScaleFactor, originX, originY);
-			}
-			/** Set canvas translate **/
-			if(mRenderer.getGraphIsPannable()) {
-				if(mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
-					canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
-				else if(mRenderer.isGraphXPannable() && !mRenderer.isGraphYPannable())
-					canvas.translate(translateX / mScaleFactor, 0);
-				else if(!mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
-					canvas.translate(0, translateY / mScaleFactor);
-			}
-	
+				
 			int tempX = originX + (int) padding;
 			int heightBar;
 			int barLabelsCounter = 0;
@@ -313,20 +302,32 @@ public class BarGraphView {
 			case Graph.STYLE_BAR_NORMAL:
 				for (int counter = 0; counter < data.size(); counter++) {
 					heightBar = (int) (((originY - (_height)) - (data.get(counter) * ratio)) + (_height));
-					paint.setShader(new LinearGradient(tempX, heightBar,
-							(int) (tempX + padding * 4), originY, color.get(counter
-									% color.size())[0], color.get(counter
-									% color.size())[1], Shader.TileMode.MIRROR));
+					/** Check if to draw a gradient or a single color **/
+					if(color.get(counter % color.size()).length > 1)
+						paint.setShader(new LinearGradient(tempX, heightBar,
+								(int) (tempX + padding * 4), originY, color.get(counter
+										% color.size())[0], color.get(counter
+										% color.size())[1], Shader.TileMode.MIRROR));
+					else if(color.get(counter % color.size()).length == 1)
+						paint.setColor(color.get(counter % color.size())[0]);
+					else
+						throw new  ClassCastException(getClass().getName() + ": Bar color not defined. Feild cannot have null values.");
+					/** Set the zoom and pan handler for the bars **/
+					canvas.save();
+					graphInputHandler(canvas, originX, _height, _width, originY, BAR_HANDLER);
+					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4), originY);
 					canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					canvas.drawText(data.get(counter) + "", tempX + padding * 2,
+					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
 							heightBar - 5, barTextPaint);
-					barGraphObject.add(new BarGraphObject(bar, String.valueOf(data
+					canvas.restore();
+					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
 					/** Rotate the text if needed **/
 					canvas.save();
+					graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 					canvas.rotate(xAxisLabelRotation, tempX + padding * 2,
 							(originY + xAxisLabelDistance));
 					if(barLabels != null && barLabels.size() > 0) 
@@ -347,23 +348,34 @@ public class BarGraphView {
 						else
 							tempX = (int) (tempX + padding * 4);
 					heightBar = (int) (((originY - (_height)) - (data.get(counter) * ratio)) + (_height));
-					paint.setShader(new LinearGradient(tempX, heightBar,
-							(int) (tempX + padding * 4), originY,
-							color.get((counter % graphGrouping) % color.size())[0],
-							color.get((counter % graphGrouping) % color.size())[1],
-							Shader.TileMode.CLAMP));
+					/** Check if to draw a gradient or a single color **/
+					if(color.get((counter % graphGrouping) % color.size()).length > 1)
+						paint.setShader(new LinearGradient(tempX, heightBar,
+								(int) (tempX + padding * 4), originY,
+								color.get((counter % graphGrouping) % color.size())[0],
+								color.get((counter % graphGrouping) % color.size())[1],
+								Shader.TileMode.CLAMP));
+					else if(color.get((counter % graphGrouping) % color.size()).length == 1)
+						paint.setColor(color.get((counter % graphGrouping) % color.size())[0]);
+					else
+						throw new  ClassCastException(getClass().getName() + ": Bar color not defined. Feild cannot have null values.");
+					/** Set the zoom and pan handler for the bars **/
+					canvas.save();
+					graphInputHandler(canvas, originX, _height, _width, originY, BAR_HANDLER);
+					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4), originY);
 					canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					canvas.drawText(data.get(counter) + "", tempX + padding * 2,
+					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
 							heightBar - 5, barTextPaint);
-					barGraphObject.add(new BarGraphObject(bar, String.valueOf(data
+					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
+					canvas.restore();
 					// TODO Add item to control x axis text label color
 					if (counter % graphGrouping == 0) {
 						canvas.save();
-						canvas.rotate(0);
+						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation, (float) (tempX + 2.5
 								* graphGrouping * padding),
 								(originY + xAxisLabelDistance));
@@ -390,24 +402,36 @@ public class BarGraphView {
 						heightBar = (int) ((originY) - (data.get(counter) * ratio));
 					else
 						heightBar = (int) ((temp) - (data.get(counter) * ratio));
-					paint.setShader(new LinearGradient(tempX, heightBar,
-							(int) (tempX + padding * 4), (temp == 0) ? originY
-									: temp, color.get((counter % graphGrouping)
-									% color.size())[0],
-							color.get((counter % graphGrouping) % color.size())[1],
-							Shader.TileMode.MIRROR));
+					/** Check if to draw a gradient or a single color **/
+					if(color.get((counter % graphGrouping) % color.size()).length > 1)
+						paint.setShader(new LinearGradient(tempX, heightBar,
+								(int) (tempX + padding * 4), (temp == 0) ? originY
+										: temp, color.get((counter % graphGrouping)
+										% color.size())[0],
+								color.get((counter % graphGrouping) % color.size())[1],
+								Shader.TileMode.MIRROR));
+					else if(color.get((counter % graphGrouping) % color.size()).length == 1)
+						paint.setColor(color.get((counter % graphGrouping) % color.size())[0]);
+					else
+						throw new  ClassCastException(getClass().getName() + ": Bar color not defined. Feild cannot have null values.");
+					/** Set the zoom and pan handler for the bars **/
+					canvas.save();
+					graphInputHandler(canvas, originX, _height, _width, originY, BAR_HANDLER);
+					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4), (temp == 0) ? originY
 									: temp);
 					temp = heightBar;
 					canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					barGraphObject.add(new BarGraphObject(bar, String.valueOf(data
+					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
-					canvas.drawText(data.get(counter) + "", tempX + padding * 2,
+					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
 							heightBar + (mRenderer.getXAxisLabelSize() + 2), stackBarTextPaint);
+					canvas.restore();
 					if (counter % graphGrouping == 0) {
 						canvas.save();
+						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation,
 								(float) (tempX + 2 * padding),
 								(originY + xAxisLabelDistance));
@@ -453,24 +477,36 @@ public class BarGraphView {
 						heightBar = (int) ((originY) - (data.get(counter) * ratio));
 					else
 						heightBar = (int) ((stackGroupTemp) - (data.get(counter) * ratio));
-					paint.setShader(new LinearGradient(tempX, heightBar,
-							(int) (tempX + padding * 4),
-							(stackGroupTemp == 0) ? originY : stackGroupTemp,
-							color.get((counter % graphGrouping) % color.size())[0],
-							color.get((counter % graphGrouping) % color.size())[1],
-							Shader.TileMode.MIRROR));
+					/** Check if to draw a gradient or a single color **/
+					if(color.get((counter % graphGrouping) % color.size()).length > 1)
+						paint.setShader(new LinearGradient(tempX, heightBar,
+								(int) (tempX + padding * 4),
+								(stackGroupTemp == 0) ? originY : stackGroupTemp,
+								color.get((counter % graphGrouping) % color.size())[0],
+								color.get((counter % graphGrouping) % color.size())[1],
+								Shader.TileMode.MIRROR));
+					else if(color.get((counter % graphGrouping) % color.size()).length == 1)
+						paint.setColor(color.get((counter % graphGrouping) % color.size())[0]);
+					else
+						throw new  ClassCastException(getClass().getName() + ": Bar color not defined. Feild cannot have null values.");
+					/** Set the zoom and pan handler for the bars **/
+					canvas.save();
+					graphInputHandler(canvas, originX, _height, _width, originY, BAR_HANDLER);
+					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4),
 							(stackGroupTemp == 0) ? originY : stackGroupTemp);
 					stackGroupTemp = heightBar;
 					canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					barGraphObject.add(new BarGraphObject(bar, String.valueOf(data
+					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
-					canvas.drawText(data.get(counter) + "", tempX + padding * 2,
+					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
 							heightBar + (mRenderer.getXAxisLabelSize()  + 2), stackBarTextPaint);
+					canvas.restore();
 					if (counter % graphGrouping == 0) {
 						canvas.save();
+						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation,
 								(float) (tempX + 2 * padding),
 								(originY + xAxisLabelDistance));
@@ -490,9 +526,39 @@ public class BarGraphView {
 				}
 				break;
 			}
-			// Restore canvas after zooming and translating
-			canvas.restore();
 			invalidate();
+		}
+		
+		/**
+		 * 
+		 * @param canvas
+		 * @param originX
+		 * @param _height
+		 * @param _width
+		 * @param originY
+		 * @param HANDLER_CASE
+		 */
+		private void graphInputHandler(Canvas canvas, int originX, int _height, int _width, int originY, int HANDLER_CASE) {
+			switch(HANDLER_CASE) {
+				case BAR_HANDLER:
+					if(mRenderer.getGraphIsZoomable() || mRenderer.getGraphIsPannable())
+						canvas.clipRect(originX, (int) (_height), _width, originY, android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
+					canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
+					break;
+				case X_AXES_LABEL_HANDLER:
+					if(mRenderer.getGraphIsZoomable() || mRenderer.getGraphIsPannable())
+						canvas.clipRect(originX, originY, _width, graphHeight, android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
+					canvas.translate(translateX / mScaleFactor, 0);
+					break;
+				case Y_AXES_LABEL_HANDLER:
+					if(mRenderer.getGraphIsZoomable() || mRenderer.getGraphIsPannable())
+						canvas.clipRect(0, (int) (_height), originX, originY, android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, originX, originY);
+					canvas.translate(0, translateY / mScaleFactor);
+					break;
+			}
 		}
 	
 		private class ScaleListener extends

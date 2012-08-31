@@ -7,7 +7,7 @@ import android.graphics.Rect;
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	
  */
-public class BarGraphObject {
+public class BarObject {
 
 	private Rect barBounds;
 	private String value;
@@ -16,7 +16,7 @@ public class BarGraphObject {
 	 * @param barBounds
 	 * @param value
 	 */
-	public BarGraphObject(Rect barBounds, String value) {
+	public BarObject(Rect barBounds, String value) {
 		this.barBounds = barBounds;
 		this.value = value;
 	}

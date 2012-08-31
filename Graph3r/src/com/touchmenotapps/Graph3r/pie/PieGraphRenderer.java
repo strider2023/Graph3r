@@ -25,7 +25,7 @@ public class PieGraphRenderer {
 
 	private Context mContext;
 
-	private ArrayList<PieGraphObject> graphData = new ArrayList<PieGraphObject>();
+	private ArrayList<PieGraphObject> graphData = new ArrayList<PieGraphObject>(0);
 
 	private int mPiePadding = 0;
 

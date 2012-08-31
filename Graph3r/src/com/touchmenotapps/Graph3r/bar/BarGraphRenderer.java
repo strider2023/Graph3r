@@ -14,13 +14,13 @@ import android.widget.TextView;
 import android.widget.LinearLayout.LayoutParams;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The BarGraphRenderer class is used to render the bar graph view on screen
  * and customize its appearance.
  * TODO Create a better defined graph object.
  */
-public class BarGraphRenderer implements BarGraphInterface {
+public class BarGraphRenderer {
 	
 	private final int ID_LEGENDS_HOLDER = 72387;
 	
@@ -28,11 +28,13 @@ public class BarGraphRenderer implements BarGraphInterface {
 	
 	private float mScaleFactor = 1.0f;
 
-	private ArrayList<Double> data = new ArrayList<Double>();
+	private ArrayList<Double> data = new ArrayList<Double>(0);
 
-	private ArrayList<int[]> color = new ArrayList<int[]>();
+	private ArrayList<int[]> color = new ArrayList<int[]>(0);
 
-	private ArrayList<String> stackGroupLabels = new ArrayList<String>();
+	private ArrayList<String> stackGroupLabels = new ArrayList<String>(0);
+	
+	private ArrayList<String> graphLegendsLabels = new ArrayList<String>(0);
 
 	private int graphWidth = 240; // Default Width of graph
 
@@ -66,6 +68,8 @@ public class BarGraphRenderer implements BarGraphInterface {
 
 	private int graphGrouping = 0;
 	
+	private int graphNumXAxesLabels = 10;
+	
 	private int xAxisLabelDistance = 10;
 	
 	private float MAX_ZOOM = 1.5f;
@@ -76,15 +80,7 @@ public class BarGraphRenderer implements BarGraphInterface {
 	
 	private boolean graphIsZoomable = false;
 	
-	private boolean graphXZoomable = false;
-	
-	private boolean graphYZoomable = false;
-	
 	private boolean graphIsPannable = false;
-	
-	private boolean graphXPannable = false;
-	
-	private boolean graphYPannable = false;
 	
 	private boolean runningOnTablet = false;
 	
@@ -134,14 +130,14 @@ public class BarGraphRenderer implements BarGraphInterface {
 			legendsLayout.setId(ID_LEGENDS_HOLDER);
 			/** Add legends content **/
 			//TODO Optimize code to show gradient
-			if(barLabels.size() > 0) {
+			if(graphLegendsLabels.size() > 0) {
 				LinearLayout legendContent = new LinearLayout(mContext);
 				legendContent.setOrientation(LinearLayout.HORIZONTAL);
-				for(int i = 0; i < barLabels.size(); i++) {
+				for(int i = 0; i < graphLegendsLabels.size(); i++) {
 					TextView legendText = new TextView(mContext);
 					LayoutParams contentParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 					contentParams.setMargins(5, 5, 5, 5);
-					legendText.setText(barLabels.get(i));
+					legendText.setText(graphLegendsLabels.get(i));
 					legendText.setBackgroundColor(color.get(i)[0]);
 					legendText.setTextColor(Color.WHITE);
 					legendText.setLayoutParams(contentParams);
@@ -156,6 +152,8 @@ public class BarGraphRenderer implements BarGraphInterface {
 			RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
 					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
 			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
+			/** Reset the graph height based on user legends layout height **/
+			setGraphWidthAndHeight(getGraphWidth(), getGraphHeight() - legendsLayout.getHeight());
 			View graphView = new BarGraphView().getGraphView(mContext, this); 
 			graphView.setLayoutParams(graphHolderParams);
 			graphLayout.addView(graphView);
@@ -293,19 +291,15 @@ public class BarGraphRenderer implements BarGraphInterface {
 	/**
 	 * @param graphIsZoomable the graphIsZoomable to set
 	 */
-	public void setGraphIsZoomable(boolean graphIsZoomable, boolean graphXZoomable, boolean graphYZoomable) {
+	public void setGraphIsZoomable(boolean graphIsZoomable) {
 		this.graphIsZoomable = graphIsZoomable;
-		this.graphXZoomable = graphXZoomable;
-		this.graphYZoomable = graphYZoomable;
 	}
 
 	/**
 	 * @param graphIsPannable the graphIsPannable to set
 	 */
-	public void setGraphIsPannable(boolean graphIsPannable, boolean graphXPannable, boolean graphYPannable) {
+	public void setGraphIsPannable(boolean graphIsPannable) {
 		this.graphIsPannable = graphIsPannable;
-		this.graphXPannable = graphXPannable;
-		this.graphYPannable = graphYPannable;
 	}
 	
 	/**
@@ -325,163 +319,143 @@ public class BarGraphRenderer implements BarGraphInterface {
 	/*****************************************************************************************************************************
 	 * Getter Methods
 	 *****************************************************************************************************************************/	
-
-	@Override
 	public float getScaleFactor() {
 		return mScaleFactor;
 	}
 
-	@Override
 	public ArrayList<Double> getPlotData() {
 		return data;
 	}
 
-	@Override
 	public ArrayList<int[]> getPlotColor() {
 		return color;
 	}
 
-	@Override
 	public ArrayList<String> getStackGroupLabels() {
 		return stackGroupLabels;
 	}
 
-	@Override
 	public int getGraphWidth() {
 		return graphWidth;
 	}
 
-	@Override
 	public int getGraphHeight() {
 		return graphHeight;
 	}
 
-	@Override
 	public int getGraphOriginX() {
 		return graphOriginX;
 	}
 
-	@Override
 	public int getGraphOriginY() {
 		return graphOriginY;
 	}
 
-	@Override
 	public boolean getDrawGridLines() {
 		return drawGridLines;
 	}
 
-	@Override
 	public boolean getDrawYAxis() {
 		return drawYAxis;
 	}
 
-	@Override
 	public boolean getDrawXAxis() {
 		return drawXAxis;
 	}
 
-	@Override
 	public int getXAxisColor() {
 		return xAxisColor;
 	}
 
-	@Override
 	public int getYAxisColor() {
 		return yAxisColor;
 	}
 
-	@Override
 	public String getYAxisLabel() {
 		return yAxisLabel;
 	}
 
-	@Override
 	public int getYAxisLabelSize() {
 		return yAxisLabelSize;
 	}
 
-	@Override
 	public int getXAxisLabelSize() {
 		return xAxisLabelSize;
 	}
 
-	@Override
 	public int getXAxisLabelRotation() {
 		return xAxisLabelRotation;
 	}
 
-	@Override
 	public ArrayList<String> getBarLabels() {
 		return barLabels;
 	}
 
-	@Override
 	public int getStyle() {
 		return style;
 	}
 
-	@Override
 	public int getGraphGrouping() {
 		return graphGrouping;
 	}
 
-	@Override
 	public int getXAxisLabelDistance() {
 		return xAxisLabelDistance;
 	}
 
-	@Override
 	public float getMaxZoom() {
 		return MAX_ZOOM;
 	}
 
-	@Override
 	public float getMinZoom() {
 		return MIN_ZOOM;
 	}
 
-	@Override
 	public boolean getGraphIsClickable() {
 		return graphIsClickable;
 	}
 
-	@Override
 	public boolean getGraphIsZoomable() {
 		return graphIsZoomable;
 	}
 
-	@Override
 	public boolean getGraphIsPannable() {
 		return graphIsPannable;
 	}
-	
+
 	/**
-	 * @return the graphXZoomable
+	 * @return the mShowGraphLegends
 	 */
-	public boolean isGraphXZoomable() {
-		return graphXZoomable;
+	public boolean isShowGraphLegends() {
+		return mShowGraphLegends;
 	}
-	
+
 	/**
-	 * @return the graphYZoomable
+	 * @param mShowGraphLegends the mShowGraphLegends to set
 	 */
-	public boolean isGraphYZoomable() {
-		return graphYZoomable;
+	public void setShowGraphLegends(boolean mShowGraphLegends) {
+		this.mShowGraphLegends = mShowGraphLegends;
 	}
-	
+
 	/**
-	 * @return the graphXPannable
+	 * @param graphLegendsLabels the graphLegendsLabels to set
 	 */
-	public boolean isGraphXPannable() {
-		return graphXPannable;
+	public void setGraphLegendsLabels(ArrayList<String> graphLegendsLabels) {
+		this.graphLegendsLabels = graphLegendsLabels;
 	}
-	
+
 	/**
-	 * @return the graphYPannable
+	 * @return the graphNumXAxesLabels
 	 */
-	public boolean isGraphYPannable() {
-		return graphYPannable;
+	public int getGraphNumXAxesLabels() {
+		return graphNumXAxesLabels;
+	}
+
+	/**
+	 * @param graphNumXAxesLabels the graphNumXAxesLabels to set
+	 */
+	public void setGraphNumXAxesLabels(int graphNumXAxesLabels) {
+		this.graphNumXAxesLabels = graphNumXAxesLabels;
 	}
 }
 

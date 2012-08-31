@@ -13,9 +13,10 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphView class is used to render the line graph.
+ * TODO Check grid and average line issue.
  */
 public class LineGraphView {
 	
@@ -30,6 +31,12 @@ public class LineGraphView {
 	}
 	
 	private class LineGraph extends View {
+		
+		private final int LINE_HANDLER = 213;
+		
+		private final int X_AXES_LABEL_HANDLER = 9809;
+		
+		private final int Y_AXES_LABEL_HANDLER = 6876;
 
 		private LineGraphHelperFunctions mHelper;
 		
@@ -67,9 +74,9 @@ public class LineGraphView {
 		
 		private int mGapBottom;
 	
-		private ArrayList<String> mGraphXAxesLabels = new ArrayList<String>();
+		private ArrayList<String> mGraphXAxesLabels = new ArrayList<String>(0);
 	
-		private ArrayList<LineGraphObject> mGraphPlotDeatils = new ArrayList<LineGraphObject>();
+		private ArrayList<LineGraphObject> mGraphPlotDeatils = new ArrayList<LineGraphObject>(0);
 	
 		private LineGraphRenderer mRenderer;
 		
@@ -108,9 +115,8 @@ public class LineGraphView {
 			mHeight = renderer.getHeight();
 			mGapLeft = renderer.getOriginX();
 			mGapBottom = renderer.getOriginY();
-			this.setPadding(renderer.getGraphPadding(), renderer.getGraphPadding(), renderer.getGraphPadding(), renderer.getGraphPadding());
-			mGapRight = 0;
-			mGapTop = 0;
+			mGapRight = renderer.getGraphPadding();
+			mGapTop = renderer.getGraphPadding();
 		}
 	
 		private void initPaint(LineGraphRenderer renderer) {
@@ -178,19 +184,24 @@ public class LineGraphView {
 					break;
 	
 				case MotionEvent.ACTION_MOVE:
-					translateX = event.getX() - startX;
-					translateY = event.getY() - startY;
-					// We cannot use startX and startY directly because we have
-					// adjusted their values using the previous translation values.
-					// This is why we need to add those values to startX and startY
-					// so that we can get the actual coordinates of the finger.
-					double distance = Math
-							.sqrt(Math.pow(event.getX()
-									- (startX + previousTranslateX), 2)
-									+ Math.pow(event.getY()
-											- (startY + previousTranslateY), 2));
-					if (distance > 0) {
-						distance *= mScaleFactor;
+					if(((event.getY() - startY)/ mScaleFactor) >= 0 
+					&& ((event.getX() - startX)/ mScaleFactor) <= 5
+					&& ((event.getY() - startY)/ mScaleFactor) <= (mHeight - mGapBottom - (70 * mScaleFactor))
+					&& ((event.getX() - startX)/ mScaleFactor) >= -(mWidth - mGapLeft - (70 * mScaleFactor))) {
+						translateX = event.getX() - startX;
+						translateY = event.getY() - startY;
+						// We cannot use startX and startY directly because we have
+						// adjusted their values using the previous translation values.
+						// This is why we need to add those values to startX and startY
+						// so that we can get the actual coordinates of the finger.
+						double distance = Math
+								.sqrt(Math.pow(event.getX()
+										- (startX + previousTranslateX), 2)
+										+ Math.pow(event.getY()
+												- (startY + previousTranslateY), 2));
+						if (distance > 0) {
+							distance *= mScaleFactor;
+						}
 					}
 					break;
 				}
@@ -231,34 +242,16 @@ public class LineGraphView {
 					(float) (mHeight - mGapBottom), 
 					mGridPaintFull);
 			
-			/** Scale the canvas **/
-			canvas.save();
-			/** Set the clip area **/
-			if(mRenderer.isGraphZoomable() || mRenderer.isGraphPannable())
-				canvas.clipRect((mGapLeft - ((String.valueOf(maxY).length() * mRenderer.getXAxesTextSize()) * mScaleFactor)), 
-						mGapTop, (mWidth - mGapRight), 
-						(mHeight - mGapBottom) + (mRenderer.getXAxesTextSize() * mScaleFactor), 
-						android.graphics.Region.Op.REPLACE);
-			/** Set canvas zoom **/
-			if(mRenderer.isGraphZoomable()) {
-				if(mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
-					canvas.scale(mScaleFactor, mScaleFactor, (float) mGapLeft, (float) (mHeight - mGapBottom));
-				else if(mRenderer.isGraphXZoomable() && !mRenderer.isGraphYZoomable())
-					canvas.scale(mScaleFactor, 1, (float) mGapLeft, (float) (mHeight - mGapBottom));
-				else if(!mRenderer.isGraphXZoomable() && mRenderer.isGraphYZoomable())
-					canvas.scale(1, mScaleFactor, (float) mGapLeft, (float) (mHeight - mGapBottom));
-			}
-			/** Set canvas translate **/
-			if(mRenderer.isGraphPannable()) {
-				if(mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
-					canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
-				else if(mRenderer.isGraphXPannable() && !mRenderer.isGraphYPannable())
-					canvas.translate(translateX / mScaleFactor, 0);
-				else if(!mRenderer.isGraphXPannable() && mRenderer.isGraphYPannable())
-					canvas.translate(0, translateY / mScaleFactor);
-			}
-			
+			/** Draw the Y axes label **/
+			Rect rect = new Rect();
+			mYAxesLabelTextPaint.getTextBounds(mRenderer.getYAxesText(), 0, mRenderer.getYAxesText().length(), rect);
+			canvas.rotate(-90, 10, (mHeight - mGapBottom) / 2); // rotating the text
+			canvas.drawText(mRenderer.getYAxesText(), 5, (mHeight - mGapBottom) / 2, mYAxesLabelTextPaint);
+			canvas.restore();
+						
 			/** Plot Y Axes labels **/
+			canvas.save();
+			graphInputHandler(canvas, maxY, Y_AXES_LABEL_HANDLER);
 			float step = (float) (maxY - minY)
 					/ (float) (mRenderer.getMaxYAxesLables());
 			float stepY = (float) (mHeight - mGapTop - mGapBottom)
@@ -277,6 +270,7 @@ public class LineGraphView {
 				StrLablel = String.valueOf(value);
 				mCanvas.drawText(StrLablel, mGapLeft - 10, NewY, mYAxesLabelTextPaint);
 			}
+			canvas.restore();
 	
 			/** Plot X Axes labels **/
 			float stepX = (float) (mWidth - mGapLeft - mGapRight)
@@ -285,6 +279,8 @@ public class LineGraphView {
 					/ (float) mRenderer.getMaxXAxesLabels();
 			NewY = (float) (mHeight - mGapBottom);
 	
+			canvas.save();
+			graphInputHandler(canvas, maxY, X_AXES_LABEL_HANDLER);
 			for (int counter = 0; counter < mRenderer.getMaxXAxesLabels(); counter++) {
 				Index = (int) ((float) (counter) * (float) IndexStep);
 				if (Index >= mGraphXAxesLabels.size())
@@ -312,7 +308,10 @@ public class LineGraphView {
 							(mHeight - mGapBottom) + 13, mXAxesLabelTextPaint);
 				}
 			}
+			canvas.restore();
 			
+			canvas.save();
+			graphInputHandler(canvas, maxY, LINE_HANDLER);
 			/** Plot the line graph **/
 			float drawOffsetX = 0.0f, drawOffsetY = 0.0f, pointStepX = 0.0f, pointStepY = 0.0f;
 			/** First loop for the number of line graph that needs to be drawn **/
@@ -362,9 +361,8 @@ public class LineGraphView {
 				mCanvas.drawLine(mGapLeft, NewY, mWidth - mGapRight, NewY,
 						mAveragePaint);
 			}
-			
-			// Restore canvas after zooming and translating
 			canvas.restore();
+			
 			/** Set the graph title **/
 			if (mRenderer.getGraphTitle() != null
 					&& mRenderer.getGraphTitle().length() > 0) {
@@ -374,6 +372,39 @@ public class LineGraphView {
 						(mWidth - TextRect.right) / 2, 10, mTitlePaint);
 			}
 			invalidate();
+		}
+		
+		private void graphInputHandler(Canvas canvas, int maxY, int HANDLER_CASE) {
+			switch(HANDLER_CASE) {
+				case LINE_HANDLER:
+					if(mRenderer.isGraphZoomable() || mRenderer.isGraphPannable())
+						canvas.clipRect(mGapLeft, 
+								mGapTop, (mWidth - mGapRight), 
+								(mHeight - mGapBottom), 
+								android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, mGapLeft, mHeight - mGapBottom);
+					canvas.translate(translateX / mScaleFactor, translateY / mScaleFactor);
+					break;
+				case X_AXES_LABEL_HANDLER:
+					if(mRenderer.isGraphZoomable() || mRenderer.isGraphPannable())
+						canvas.clipRect(mGapLeft, 
+								(mHeight - mGapBottom), 
+								(mWidth - mGapRight), 
+								mHeight, android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, mGapLeft, mHeight - mGapBottom);
+					canvas.translate(translateX / mScaleFactor, 0);
+					break;
+				case Y_AXES_LABEL_HANDLER:
+					if(mRenderer.isGraphZoomable() || mRenderer.isGraphPannable())
+						canvas.clipRect(0, 
+								mGapTop, 
+								mGapLeft, 
+								(mHeight - mGapBottom), 
+								android.graphics.Region.Op.REPLACE);
+					canvas.scale(mScaleFactor, mScaleFactor, mGapLeft, mHeight - mGapBottom);
+					canvas.translate(0, translateY / mScaleFactor);
+					break;
+			}
 		}
 	
 		private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {

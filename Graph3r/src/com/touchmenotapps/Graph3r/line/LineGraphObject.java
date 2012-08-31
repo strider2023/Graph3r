@@ -1,7 +1,7 @@
 package com.touchmenotapps.Graph3r.line;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphObject defines a line graph plot. 
  */
