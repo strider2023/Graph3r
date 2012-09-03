@@ -2,6 +2,8 @@ package com.touchmenotapps.Graph3r.line;
 
 import java.util.ArrayList;
 
+import com.touchmenotapps.Graph3r.Graph;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
@@ -22,10 +24,6 @@ public class LineGraphRenderer {
 	
 	private final int ID_LEGENDS_HOLDER = 72638;
 	
-	public static final int LINE_GRAPH_STYLE_NORMAL = 0;
-	
-	public static final int LINE_GRAPH_STYLE_FILL = 1;
-	
 	private final int DEFAULT_SIZE = 240;
 	
 	private float mScaleFactor = 1.0f;
@@ -42,7 +40,11 @@ public class LineGraphRenderer {
 	
 	private boolean mGraphIsPannable = false;
 	
+	private boolean mGraphHasPlotHighlighter = false;
+	
 	private int mGraphPadding = 5;
+	
+	private int mPlotHighlighterRadius = 3;
 		
 	private int mGridColor = Color.WHITE;
 	
@@ -169,14 +171,10 @@ public class LineGraphRenderer {
 	 * @param mStyle the mStyle to set
 	 */
 	public void setStyle(int mStyle) {
-		switch(mStyle) {
-			case LINE_GRAPH_STYLE_NORMAL:
-				mFillGraph = false;
-				break;
-			case LINE_GRAPH_STYLE_FILL:
-				mFillGraph = true;
-				break;
-		}
+		if(mStyle == Graph.STYLE_LINE_GRAPH_NORMAL)
+			mFillGraph = false;
+		else if(mStyle == Graph.STYLE_LINE_GRAPH_FILL)
+			mFillGraph = true;
 	}
 
 	/**
@@ -454,13 +452,6 @@ public class LineGraphRenderer {
 	}
 
 	/**
-	 * @param mMaxXAxesLabels the mMaxXAxesLabels to set
-	 */
-	public void setMaxXAxesLabels(int mMaxXAxesLabels) {
-		this.mMaxXAxesLabels = mMaxXAxesLabels;
-	}
-
-	/**
 	 * @return the mMaxYAxesLables
 	 */
 	public int getMaxYAxesLables() {
@@ -583,5 +574,33 @@ public class LineGraphRenderer {
 	 */
 	public void setYAxesText(String mYAxesText) {
 		this.mYAxesText = mYAxesText;
+	}
+
+	/**
+	 * @return the mPlotHighlighterRadius
+	 */
+	public int getPlotHighlighterRadius() {
+		return mPlotHighlighterRadius;
+	}
+
+	/**
+	 * @param mPlotHighlighterRadius the mPlotHighlighterRadius to set
+	 */
+	public void setPlotHighlighterRadius(int mPlotHighlighterRadius) {
+		this.mPlotHighlighterRadius = mPlotHighlighterRadius;
+	}
+
+	/**
+	 * @return the mGraphHasPlotHighlighter
+	 */
+	public boolean isGraphHasPlotHighlighterEnabled() {
+		return mGraphHasPlotHighlighter;
+	}
+
+	/**
+	 * @param mGraphHasPlotHighlighter the mGraphHasPlotHighlighter to set
+	 */
+	public void setGraphHasPlotHighlighter(boolean mGraphHasPlotHighlighter) {
+		this.mGraphHasPlotHighlighter = mGraphHasPlotHighlighter;
 	}
 }

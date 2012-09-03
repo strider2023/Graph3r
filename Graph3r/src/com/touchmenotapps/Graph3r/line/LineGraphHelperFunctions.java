@@ -35,7 +35,7 @@ public class LineGraphHelperFunctions {
 		mMaxPlotPoints = Collections.max(totalPlotPoints);
 		MAX_VALUE = Collections.max(plotPoints);
 		MIN_VALUE = Collections.min(plotPoints);
-		AVERAGE = plotValuesSum/mMaxPlotPoints;
+		AVERAGE = plotValuesSum/plotPoints.size();
 	}
 
 	public int getMaxPointsCount() {

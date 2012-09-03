@@ -3,6 +3,7 @@ package com.touchmenotapps.Graph3r.bar;
 import java.util.ArrayList;
 
 import com.touchmenotapps.Graph3r.Graph;
+import com.touchmenotapps.Graph3r.bar.BarGraphView.BarGraphInterface;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -103,6 +104,11 @@ public class BarGraphRenderer {
 		this.graphOriginY = parentView.getHeight()/6;
 	}
 	
+	/**
+	 * 
+	 * @param width
+	 * @param height
+	 */
 	public void setGraphWidthAndHeight(int width, int height) {
 		this.graphWidth = width;
 		this.graphHeight = height;
@@ -457,5 +463,8 @@ public class BarGraphRenderer {
 	public void setGraphNumXAxesLabels(int graphNumXAxesLabels) {
 		this.graphNumXAxesLabels = graphNumXAxesLabels;
 	}
+	
+	public void onBarGraphClickedListener(BarGraphInterface barGraphInterface) { }
+
 }
 

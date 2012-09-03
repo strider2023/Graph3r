@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Toast;
 
 /**
  * @version Graph3r Alpha 3
@@ -37,6 +36,17 @@ public class BarGraphView {
 		return new BarGraph(context, renderer);
 	}
 	
+	public class OnBarGraphClickedListener implements  BarGraphInterface {
+		@Override
+		public void onBarClickedListener(BarObject data) {
+			Log.i(this.getClass().getName(), data.getValue());
+		}
+	}
+	
+	public interface BarGraphInterface {
+		public void onBarClickedListener(BarObject data);
+	}
+	
 	private class BarGraph extends View {
 		
 		private final int BAR_HANDLER = 213;
@@ -46,6 +56,8 @@ public class BarGraphView {
 		private final int Y_AXES_LABEL_HANDLER = 6876;
 
 		private BarGraphRenderer mRenderer;
+		
+		private BarGraphInterface mCallback;
 	
 		private ScaleGestureDetector mScaleDetector;
 	
@@ -116,6 +128,7 @@ public class BarGraphView {
 			super(context);
 			mRenderer = renderer;
 			mFunctions = new BarGraphHelperFunctions();
+			mCallback = new OnBarGraphClickedListener();
 			mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
 			initializeGraphRenderer();
 		}
@@ -167,12 +180,10 @@ public class BarGraphView {
 					graphIsDragged = false;
 					for (int counter = 0; counter < barGraphObject.size(); counter++) {
 						if (barGraphObject.get(counter).isInBounds(eventX, eventY)) {
-							Toast.makeText(getContext(),
-									"Clicked " + barGraphObject.get(counter).getValue(),
-									Toast.LENGTH_LONG).show();
+							mCallback.onBarClickedListener(barGraphObject.get(counter));
 							break;
-						} else
-							Log.i("Bar Graph", "Blank Click");
+						} //else
+							//Log.i("Bar Graph", "Blank Click");
 					}
 					break;
 				}
@@ -526,7 +537,6 @@ public class BarGraphView {
 				}
 				break;
 			}
-			invalidate();
 		}
 		
 		/**

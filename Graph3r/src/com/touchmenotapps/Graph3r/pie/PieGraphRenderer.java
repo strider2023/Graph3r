@@ -12,7 +12,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The PieGraphRenderer class is used to render the pie graph view on screen
  * and customize its appearance.
@@ -51,11 +51,26 @@ public class PieGraphRenderer {
 
 	private boolean graphIsPannable = false;
 
+	/**
+	 * 
+	 * @param parentView
+	 * @param data
+	 */
 	public PieGraphRenderer(View parentView, ArrayList<PieGraphObject> data) {
 		mContext = parentView.getContext();
 		graphData.addAll(data);
 		mPieChartHeight = parentView.getHeight();
 		mPieChartWidth = parentView.getWidth();
+	}
+	
+	/**
+	 * 
+	 * @param width
+	 * @param height
+	 */
+	public void setGraphWidthAndHeight(int width, int height) {
+		mPieChartHeight = height;
+		mPieChartWidth = width;
 	}
 
 	public View renderGraph() throws Exception  {

@@ -11,7 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 /**
- * @version Graph3r Alpha 2
+ * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The PieGraphView class is used to render the pie graph.
  */
@@ -53,10 +53,10 @@ public class PieGraphView {
 	
 		private int mMaxConnection;
 	
-		private ArrayList<PieGraphObject> mDataArray;
+		private ArrayList<PieGraphObject> mPlotData = new ArrayList<PieGraphObject>(0);
 	
 		private RectF mOvals;
-	
+		
 		// These two variables keep track of the X and Y coordinate of the finger
 		// when it first
 		// touches the screen
@@ -83,7 +83,7 @@ public class PieGraphView {
 		}
 	
 		private void initChartPlotData(PieGraphRenderer renderer) {
-			mDataArray = renderer.getGraphData();
+			mPlotData = renderer.getGraphData();
 			mMaxConnection = renderer.getTotalValue(renderer.getGraphData());
 			mWidth = renderer.getPieChartWidth();
 			mHeight = renderer.getPieChartHeight();
@@ -130,12 +130,10 @@ public class PieGraphView {
 			/** Start drawing  the pie **/
 			canvas.drawColor(mBgColor);
 			mStart = START_INC;
-			PieGraphObject plotDetail;
-			for (int i = 0; i < mDataArray.size(); i++) {
-				plotDetail = (PieGraphObject) mDataArray.get(i);
-				mPiePaint.setColor(plotDetail.getColor());
+			for (int i = 0; i < mPlotData.size(); i++) {
+				mPiePaint.setColor(mPlotData.get(i).getColor());
 				mSweep = (float) 360
-						* ((float) plotDetail.getValue() / (float) mMaxConnection);
+						* ((float) mPlotData.get(i).getValue() / (float) mMaxConnection);
 				canvas.drawArc(mOvals, mStart, mSweep, true, mPiePaint);
 				canvas.drawArc(mOvals, mStart, mSweep, true, mPieDividerLinePaints);
 				mStart += mSweep;
@@ -146,6 +144,10 @@ public class PieGraphView {
 	
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			if(mRenderer.isGraphClickable()) {
+				
+			}
+			
 			if (mRenderer.isGraphPannable()) {
 				switch (event.getAction() & MotionEvent.ACTION_MASK) {
 				case MotionEvent.ACTION_UP:

@@ -16,7 +16,7 @@ import android.view.View;
  * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphView class is used to render the line graph.
- * TODO Check grid and average line issue.
+ * <br>TODO Check grid.
  */
 public class LineGraphView {
 	
@@ -30,6 +30,11 @@ public class LineGraphView {
 		return new LineGraph(context, renderer);
 	}
 	
+	/**
+	 * 
+	 * @author Arindam Nath
+	 *
+	 */
 	private class LineGraph extends View {
 		
 		private final int LINE_HANDLER = 213;
@@ -43,10 +48,10 @@ public class LineGraphView {
 		private ScaleGestureDetector mScaleDetector;
 		
 		private float mScaleFactor = 1.0f;
-	
-		private Canvas mCanvas = null;
 		
 		private Paint mGraphLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		
+		private Paint mPlotHighlighterPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		
 		private Paint mGridPaintFull = new Paint(Paint.ANTI_ALIAS_FLAG);
 		
@@ -98,6 +103,11 @@ public class LineGraphView {
 		private float previousTranslateX = 0f;
 		private float previousTranslateY = 0f;
 	
+		/**
+		 * 
+		 * @param context
+		 * @param renderer
+		 */
 		public LineGraph(Context context, LineGraphRenderer renderer) {
 			super(context);
 			mRenderer = renderer;
@@ -107,6 +117,10 @@ public class LineGraphView {
 			initPaint(renderer);
 		}
 	
+		/**
+		 * 
+		 * @param renderer
+		 */
 		private void initView(LineGraphRenderer renderer) {
 			mGraphPlotDeatils = renderer.getGraphPlotDeatils();
 			mGraphXAxesLabels = renderer.getGraphXAxesLabels();
@@ -119,6 +133,10 @@ public class LineGraphView {
 			mGapTop = renderer.getGraphPadding();
 		}
 	
+		/**
+		 * 
+		 * @param renderer
+		 */
 		private void initPaint(LineGraphRenderer renderer) {
 			mGridPaintDot.setColor(renderer.getGridColor());
 			mGridPaintDot.setStyle(Paint.Style.FILL);
@@ -144,21 +162,24 @@ public class LineGraphView {
 	
 			mAveragePaint.setColor(renderer.getAverageLineColor());
 			mAveragePaint.setStyle(Paint.Style.FILL);
-			mAveragePaint.setStrokeWidth(1.5f);
+			mAveragePaint.setStrokeWidth(renderer.getGraphLineThickness());
 			mAveragePaint
 					.setPathEffect(new DashPathEffect(new float[] { 5, 5 }, 1));
 			
 			mAverageTextPaint.setStyle(Paint.Style.FILL);
-			mAverageTextPaint.setTextAlign(Paint.Align.LEFT);
+			mAverageTextPaint.setTextAlign(Paint.Align.CENTER);
 			mAverageTextPaint.setColor(renderer.getAverageLineColor());
 			mAverageTextPaint.setTextSize(10);
 			
 			if (mRenderer.isFillGraph()) {
-				mGraphLinePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+				mGraphLinePaint.setStyle(Paint.Style.FILL);
+				mPlotHighlighterPaint.setStyle(Paint.Style.FILL);
 			} else {
 				mGraphLinePaint.setStyle(Paint.Style.FILL);
+				mPlotHighlighterPaint.setStyle(Paint.Style.STROKE);
 			}
 			mGraphLinePaint.setStrokeWidth(renderer.getGraphLineThickness());
+			mPlotHighlighterPaint.setStrokeWidth(renderer.getGraphLineThickness());
 		}
 	
 		@Override
@@ -184,7 +205,7 @@ public class LineGraphView {
 					break;
 	
 				case MotionEvent.ACTION_MOVE:
-					if(((event.getY() - startY)/ mScaleFactor) >= 0 
+					if(((event.getY() - startY)/ mScaleFactor) >= 5 
 					&& ((event.getX() - startX)/ mScaleFactor) <= 5
 					&& ((event.getY() - startY)/ mScaleFactor) <= (mHeight - mGapBottom - (70 * mScaleFactor))
 					&& ((event.getX() - startX)/ mScaleFactor) >= -(mWidth - mGapLeft - (70 * mScaleFactor))) {
@@ -217,7 +238,6 @@ public class LineGraphView {
 		@Override
 		protected void onDraw(Canvas canvas) {
 			super.onDraw(canvas);
-			mCanvas = canvas;
 			Rect TextRect = new Rect();
 			String StrLablel = "";
 			LineGraphObject mLineGraphItem;
@@ -229,14 +249,14 @@ public class LineGraphView {
 			float graphAverage = mHelper.getAverage();
 			
 			/** Draw Y Axes **/
-			mCanvas.drawLine((float) (mGapLeft), 
+			canvas.drawLine((float) (mGapLeft), 
 					(float) (mHeight - mGapBottom), 
 					(float) (mWidth - mGapRight), 
 					(mHeight - mGapBottom), 
 					mGridPaintFull);
 			
 			/** Draw the X Axes **/
-			mCanvas.drawLine((float) mGapLeft, 
+			canvas.drawLine((float) mGapLeft, 
 					mGapTop, 
 					(float) mGapLeft, 
 					(float) (mHeight - mGapBottom), 
@@ -262,13 +282,12 @@ public class LineGraphView {
 				OldY = (float) (mHeight - mGapBottom - y);
 				NewX = (float) (mWidth - mGapRight);
 				NewY = (float) (mHeight - mGapBottom - y);
-				if (counter > 0) 
-					if(mRenderer.isGridVisible())
-						mCanvas.drawLine(OldX, OldY, NewX, NewY, mGridPaintDot);
-				
 				value = (int) minY + (int) (counter * step);
 				StrLablel = String.valueOf(value);
-				mCanvas.drawText(StrLablel, mGapLeft - 10, NewY, mYAxesLabelTextPaint);
+				if (counter > 0) 
+					if(mRenderer.isGridVisible())
+						canvas.drawLine(OldX, OldY, NewX, NewY, mGridPaintDot);
+				canvas.drawText(StrLablel, mGapLeft - 10, NewY, mYAxesLabelTextPaint);
 			}
 			canvas.restore();
 	
@@ -291,20 +310,20 @@ public class LineGraphView {
 				
 				if (counter > 0)
 					if(mRenderer.isGridVisible())
-						mCanvas.drawLine(NewX, mGapTop, NewX, NewY + 3, mGridPaintDot);
+						canvas.drawLine(NewX, mGapTop, NewX, NewY + 3, mGridPaintDot);
 				
 				/** Check if the user has passed the list of custom labels for x-axes**/
 				if (mGraphXAxesLabels != null && mGraphXAxesLabels.size() > 0) {
 					mXAxesLabelTextPaint.getTextBounds(mGraphXAxesLabels.get(counter), 0,
 							mGraphXAxesLabels.get(counter).length(), TextRect);
 					NewX = NewX - TextRect.right / 2;
-					mCanvas.drawText(mGraphXAxesLabels.get(counter), NewX,
+					canvas.drawText(mGraphXAxesLabels.get(counter), NewX,
 							(mHeight - mGapBottom) + 13, mXAxesLabelTextPaint);
 				} else {
 					mXAxesLabelTextPaint.getTextBounds(String.valueOf(counter), 0,
 							String.valueOf(counter).length(), TextRect);
 					NewX = NewX - TextRect.right / 2;
-					mCanvas.drawText(String.valueOf(counter), NewX,
+					canvas.drawText(String.valueOf(counter), NewX,
 							(mHeight - mGapBottom) + 13, mXAxesLabelTextPaint);
 				}
 			}
@@ -334,16 +353,22 @@ public class LineGraphView {
 					NewX = drawOffsetX + (pointStepX * (float) k);
 					NewY = drawOffsetY - (pointStepY * (float) (plotValue - minY));
 					mGraphLinePaint.setColor(mLineGraphItem.getPlotColor());
-					if (!mRenderer.isFillGraph()) {
-						mCanvas.drawLine(OldX, OldY, NewX, NewY, mGraphLinePaint);
-					} else {
+					mPlotHighlighterPaint.setColor(mLineGraphItem.getPlotColor());
+					if (mRenderer.isFillGraph()) {
 						mPath.rewind();
 						mPath.moveTo(OldX, OldY);
 						mPath.lineTo(NewX, NewY);
 						mPath.lineTo(NewX, drawOffsetY);
 						mPath.lineTo(OldX, drawOffsetY);
 						mPath.close();
-						mCanvas.drawPath(mPath, mGraphLinePaint);
+						mGraphLinePaint.setAlpha(50);
+						if(mRenderer.isGraphHasPlotHighlighterEnabled())
+							canvas.drawCircle(OldX, OldY, (mRenderer.getGraphLineThickness() * mRenderer.getPlotHighlighterRadius()), mPlotHighlighterPaint);
+						canvas.drawPath(mPath, mGraphLinePaint);
+					} else {
+						canvas.drawLine(OldX, OldY, NewX, NewY, mGraphLinePaint);
+						if(mRenderer.isGraphHasPlotHighlighterEnabled())
+							canvas.drawCircle(OldX, OldY, (mRenderer.getGraphLineThickness() * mRenderer.getPlotHighlighterRadius()), mPlotHighlighterPaint);
 					}
 					OldX = NewX;
 					OldY = NewY;
@@ -355,10 +380,9 @@ public class LineGraphView {
 				mAverageTextPaint.getTextBounds(String.valueOf(graphAverage), 0, String.valueOf(graphAverage).length(),
 						TextRect);
 				NewX = (float) (mWidth - mGapRight - TextRect.right) - 3.0f;
-				NewY = (float) (mGapTop - TextRect.top) + 3.0f;
-				mCanvas.drawText(String.valueOf(graphAverage), NewX, NewY, mAverageTextPaint);
 				NewY = drawOffsetY - (pointStepY * (float) (graphAverage - minY));
-				mCanvas.drawLine(mGapLeft, NewY, mWidth - mGapRight, NewY,
+				canvas.drawText(String.valueOf(graphAverage), NewX, NewY  - (mRenderer.getGraphLineThickness() * 6), mAverageTextPaint);
+				canvas.drawLine(mGapLeft, NewY, mWidth - mGapRight, NewY,
 						mAveragePaint);
 			}
 			canvas.restore();
@@ -368,12 +392,17 @@ public class LineGraphView {
 					&& mRenderer.getGraphTitle().length() > 0) {
 				mTitlePaint.getTextBounds(mRenderer.getGraphTitle(), 0, mRenderer
 						.getGraphTitle().length(), TextRect);
-				mCanvas.drawText(mRenderer.getGraphTitle(),
+				canvas.drawText(mRenderer.getGraphTitle(),
 						(mWidth - TextRect.right) / 2, 10, mTitlePaint);
 			}
-			invalidate();
 		}
 		
+		/**
+		 * 
+		 * @param canvas
+		 * @param maxY
+		 * @param HANDLER_CASE
+		 */
 		private void graphInputHandler(Canvas canvas, int maxY, int HANDLER_CASE) {
 			switch(HANDLER_CASE) {
 				case LINE_HANDLER:
@@ -407,6 +436,11 @@ public class LineGraphView {
 			}
 		}
 	
+		/**
+		 * 
+		 * @author Arindam Nath
+		 *
+		 */
 		private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 		
 			@Override
