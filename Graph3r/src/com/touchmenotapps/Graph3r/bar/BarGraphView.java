@@ -36,13 +36,6 @@ public class BarGraphView {
 		return new BarGraph(context, renderer);
 	}
 	
-	public class OnBarGraphClickedListener implements  BarGraphInterface {
-		@Override
-		public void onBarClickedListener(BarObject data) {
-			Log.i(this.getClass().getName(), data.getValue());
-		}
-	}
-	
 	public interface BarGraphInterface {
 		public void onBarClickedListener(BarObject data);
 	}
@@ -128,7 +121,7 @@ public class BarGraphView {
 			super(context);
 			mRenderer = renderer;
 			mFunctions = new BarGraphHelperFunctions();
-			mCallback = new OnBarGraphClickedListener();
+			mCallback = renderer.getBarGraphClickedListener();
 			mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
 			initializeGraphRenderer();
 		}

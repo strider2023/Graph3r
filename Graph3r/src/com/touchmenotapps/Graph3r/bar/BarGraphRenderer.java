@@ -25,6 +25,8 @@ public class BarGraphRenderer {
 	
 	private final int ID_LEGENDS_HOLDER = 72387;
 	
+	private BarGraphInterface mGraphInterfaceCallback;
+	
 	private Context mContext;
 	
 	private float mScaleFactor = 1.0f;
@@ -288,10 +290,13 @@ public class BarGraphRenderer {
 	}
 
 	/**
-	 * @param graphIsClickable the graphIsClickable to set
+	 * 
+	 * @param graphIsClickable
+	 * @param barGraphInterface
 	 */
-	public void setGraphIsClickable(boolean graphIsClickable) {
+	public void setGraphIsClickable(boolean graphIsClickable, BarGraphInterface barGraphInterface) {
 		this.graphIsClickable = graphIsClickable;
+		this.mGraphInterfaceCallback = barGraphInterface;
 	}
 
 	/**
@@ -463,8 +468,9 @@ public class BarGraphRenderer {
 	public void setGraphNumXAxesLabels(int graphNumXAxesLabels) {
 		this.graphNumXAxesLabels = graphNumXAxesLabels;
 	}
-	
-	public void onBarGraphClickedListener(BarGraphInterface barGraphInterface) { }
-
+		
+	public BarGraphInterface getBarGraphClickedListener() {
+		return mGraphInterfaceCallback;
+	}
 }
 
