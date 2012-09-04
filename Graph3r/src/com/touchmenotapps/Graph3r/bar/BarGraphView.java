@@ -296,7 +296,8 @@ public class BarGraphView {
 					mRenderer, 
 					originX, originY, _height, getHeight(), 
 					maxVal, 
-					mRenderer.isRunningOnTablet());
+					mRenderer.isRunningOnTablet(),
+					mScaleFactor);
 				
 			int tempX = originX + (int) padding;
 			int heightBar;
@@ -333,13 +334,13 @@ public class BarGraphView {
 					canvas.save();
 					graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 					canvas.rotate(xAxisLabelRotation, tempX + padding * 2,
-							(originY + xAxisLabelDistance));
+							(originY + (xAxisLabelDistance * mScaleFactor)));
 					if(barLabels != null && barLabels.size() > 0) 
 						canvas.drawText(barLabels.get(counter), tempX + padding * 2,
-								originY + xAxisLabelDistance, xAxesLabelTextPaint);
+								originY + (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 					else 
 						canvas.drawText(String.valueOf(counter), tempX + padding * 2,
-								originY + xAxisLabelDistance, xAxesLabelTextPaint);
+								originY + (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 					canvas.restore();
 					tempX = (int) (tempX + padding * 5);
 				}
@@ -382,15 +383,15 @@ public class BarGraphView {
 						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation, (float) (tempX + 2.5
 								* graphGrouping * padding),
-								(originY + xAxisLabelDistance));
+								(originY + (xAxisLabelDistance * mScaleFactor)));
 						if(barLabels != null && barLabels.size() > 0) 
 							canvas.drawText(barLabels.get(barLabelsCounter++),
 									(float) (tempX + 2.5 * graphGrouping * padding),
-									originY + xAxisLabelDistance, xAxesLabelTextPaint);
+									originY + (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						else
 							canvas.drawText(String.valueOf(counter),
 									(float) (tempX + 2.5 * graphGrouping * padding),
-									originY + xAxisLabelDistance, xAxesLabelTextPaint);
+									originY + (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						canvas.restore();
 					}
 				}
@@ -438,15 +439,15 @@ public class BarGraphView {
 						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation,
 								(float) (tempX + 2 * padding),
-								(originY + xAxisLabelDistance));
+								(originY + (xAxisLabelDistance * mScaleFactor)));
 						if(barLabels != null && barLabels.size() > 0) 
 							canvas.drawText(barLabels.get(barLabelsCounter++),
 									(float) (tempX + 2 * padding), originY
-											+ xAxisLabelDistance, xAxesLabelTextPaint);
+											+ (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						else
 							canvas.drawText(String.valueOf(counter),
 									(float) (tempX + 2 * padding), originY
-											+ xAxisLabelDistance, xAxesLabelTextPaint);
+											+ (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						canvas.restore();
 					}
 				}
@@ -457,20 +458,22 @@ public class BarGraphView {
 				int stackGroupTemp = 0;
 				for (int counter = 0; counter < data.size(); counter++) {
 					// Setting third grouping factor, X axes labels
-					if (counter > 0 && counter % 8 == 0) {
-						canvas.save();
-						if (currentSecondXLabel == 0)
-							canvas.drawText(
-									stackGroupLabels.get(currentSecondXLabel++),
-									(float) (currentSecondXLabelValue / 1.5), originY
-											+ xAxisLabelDistance + 15,
-											xAxesSecondGroupPaint);
-						else
-							canvas.drawText(
-									stackGroupLabels.get(currentSecondXLabel++),
-									currentSecondXLabelValue, originY + xAxisLabelDistance + 15,
-									xAxesSecondGroupPaint);
-						canvas.restore();
+					if(!stackGroupLabels.isEmpty()) {
+						if (counter > 0 && counter % 8 == 0) {
+							canvas.save();
+							if (currentSecondXLabel == 0)
+								canvas.drawText(
+										stackGroupLabels.get(currentSecondXLabel++),
+										(float) (currentSecondXLabelValue / 1.5), originY
+												+ (xAxisLabelDistance * mScaleFactor) + 15,
+												xAxesSecondGroupPaint);
+							else
+								canvas.drawText(
+										stackGroupLabels.get(currentSecondXLabel++),
+										currentSecondXLabelValue, originY + (xAxisLabelDistance * mScaleFactor) + 15,
+										xAxesSecondGroupPaint);
+							canvas.restore();
+						}
 					}
 					// Drawing the stacks
 					if (counter > 0 && counter % graphGrouping == 0) {
@@ -513,15 +516,15 @@ public class BarGraphView {
 						graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 						canvas.rotate(xAxisLabelRotation,
 								(float) (tempX + 2 * padding),
-								(originY + xAxisLabelDistance));
+								(originY + (xAxisLabelDistance * mScaleFactor)));
 						if(barLabels != null && barLabels.size() > 0) 
 							canvas.drawText(barLabels.get(barLabelsCounter++),
 									(float) (tempX + 2 * padding), originY
-											+ xAxisLabelDistance, xAxesLabelTextPaint);
+											+ (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						else
 							canvas.drawText(String.valueOf(counter),
 									(float) (tempX + 2 * padding), originY
-											+ xAxisLabelDistance, xAxesLabelTextPaint);
+											+ (xAxisLabelDistance * mScaleFactor), xAxesLabelTextPaint);
 						canvas.restore();
 						if (counter > 0 && counter % 6 == 0) {
 							currentSecondXLabelValue = (float) (tempX + 2 * padding);

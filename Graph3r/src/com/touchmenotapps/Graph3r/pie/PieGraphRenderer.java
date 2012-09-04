@@ -15,7 +15,7 @@ import android.widget.TextView;
  * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The PieGraphRenderer class is used to render the pie graph view on screen
- * and customize its appearance.
+ * and customise its appearance.
  */
 public class PieGraphRenderer {
 	

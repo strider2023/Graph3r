@@ -365,6 +365,7 @@ public class LineGraphView {
 						if(mRenderer.isGraphHasPlotHighlighterEnabled())
 							canvas.drawCircle(OldX, OldY, (mRenderer.getGraphLineThickness() * mRenderer.getPlotHighlighterRadius()), mPlotHighlighterPaint);
 						canvas.drawPath(mPath, mGraphLinePaint);
+						canvas.drawLine(OldX, OldY, NewX, NewY, mGraphLinePaint);
 					} else {
 						canvas.drawLine(OldX, OldY, NewX, NewY, mGraphLinePaint);
 						if(mRenderer.isGraphHasPlotHighlighterEnabled())

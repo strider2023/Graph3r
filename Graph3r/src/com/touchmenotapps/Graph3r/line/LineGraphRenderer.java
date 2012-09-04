@@ -17,7 +17,7 @@ import android.widget.LinearLayout.LayoutParams;
  * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The LineGraphRenderer class is used to render the line graph view on screen
- * and customize its appearance.
+ * and customise its appearance.
  * TODO Add option for legends text size.
  */
 public class LineGraphRenderer {

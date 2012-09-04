@@ -72,13 +72,13 @@ public class BarGraphHelperFunctions {
 		}
 	}
 	
-	public void drawYAxisLabel(Canvas canvas, BarGraphRenderer renderer, int originX, int originY, int graphHeight, int viewHeight, int maxVal, boolean isTablet) {
+	public void drawYAxisLabel(Canvas canvas, BarGraphRenderer renderer, int originX, int originY, int graphHeight, int viewHeight, int maxVal, boolean isTablet, float mScaleFactor) {
 		Rect rect = new Rect();
 		Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paint.getTextBounds(renderer.getYAxisLabel(), 0, renderer.getYAxisLabel().length(), rect);
 		paint.setStyle(Paint.Style.FILL);
 		paint.setColor(Color.BLACK);
-		paint.setTextAlign(Align.CENTER);
+		paint.setTextAlign(Align.RIGHT);
 		//Check if the device is a tablet or not.
 		if (isTablet) {
 			paint.setTextSize(20);
@@ -87,26 +87,18 @@ public class BarGraphHelperFunctions {
 		}
 		canvas.save();
 		if (!renderer.getDrawGridLines()) {
-			canvas.rotate(-90, originX - 10, viewHeight - originY
-					- graphHeight / 2); // rotating the text
-			canvas.drawText(renderer.getYAxisLabel(), originX - 5, viewHeight
-					- originY - graphHeight / 2, paint);
+			canvas.rotate(-90, originX - (10*mScaleFactor), (viewHeight/2)); // rotating the text
+			canvas.drawText(renderer.getYAxisLabel(), originX - 5, (viewHeight/2), paint);
 		} else {
 			if (maxVal < 10) {
-				canvas.rotate(-90, originX - 15, viewHeight
-						- originY - graphHeight / 2); // rotating the text
-				canvas.drawText(renderer.getYAxisLabel(), originX - 10, viewHeight
-						- originY - graphHeight / 2, paint);
+				canvas.rotate(-90, originX - (15*mScaleFactor), (viewHeight/2)); // rotating the text
+				canvas.drawText(renderer.getYAxisLabel(), originX - 10, (viewHeight/2), paint);
 			} else if (maxVal < 100) {
-				canvas.rotate(-90, originX - 25, viewHeight
-						- originY - graphHeight / 2); // rotating the text
-				canvas.drawText(renderer.getYAxisLabel(), originX - 20, viewHeight
-						- originY - graphHeight / 2, paint);
+				canvas.rotate(-90, originX - (25*mScaleFactor), (viewHeight/2)); // rotating the text
+				canvas.drawText(renderer.getYAxisLabel(), originX - 20, (viewHeight/2), paint);
 			} else {
-				canvas.rotate(-90, originX - 35, viewHeight
-						- originY - graphHeight / 2); // rotating the text
-				canvas.drawText(renderer.getYAxisLabel(), originX - 30, viewHeight
-						- originY - graphHeight / 2, paint);
+				canvas.rotate(-90, originX - (35*mScaleFactor), (viewHeight/2)); // rotating the text
+				canvas.drawText(renderer.getYAxisLabel(), originX - 30, (viewHeight/2), paint);
 			}
 		}
 		canvas.restore();

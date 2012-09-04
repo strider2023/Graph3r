@@ -18,7 +18,7 @@ import android.widget.LinearLayout.LayoutParams;
  * @version Graph3r Alpha 3
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The BarGraphRenderer class is used to render the bar graph view on screen
- * and customize its appearance.
+ * and customise its appearance.
  * TODO Create a better defined graph object.
  */
 public class BarGraphRenderer {
