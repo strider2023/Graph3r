@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Touch Me Not Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.touchmenotapps.Graph3r.bar;
 
 import java.util.ArrayList;
@@ -18,7 +34,7 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 /**
- * @version Graph3r Alpha 3
+ * @version Graph3r Beta 1
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The BarGraphView class implements all variation of Bar Graph, like 
  * 	Simple Bar Graph, Stacked Bar Graph and Grouped Bar Graph.
@@ -27,15 +43,20 @@ import android.view.View;
 public class BarGraphView {
 	
 	/**
-	 * 
-	 * @param context
-	 * @param renderer
-	 * @return
+	 * This function returns the meter bar view based on the values and settings passed by the renderer.
+	 * @param context - Context of the current activity.
+	 * @param renderer - BarGraphRenderer object that holds all the rendering values.
+	 * @return (View) Rendered BarGraph view.
 	 */
 	public View getGraphView(Context context, BarGraphRenderer renderer) {
 		return new BarGraph(context, renderer);
 	}
 	
+	/**
+	 * 
+	 * @author Arindam Nath
+	 *
+	 */
 	public interface BarGraphInterface {
 		public void onBarClickedListener(BarObject data);
 	}
@@ -461,6 +482,7 @@ public class BarGraphView {
 					if(!stackGroupLabels.isEmpty()) {
 						if (counter > 0 && counter % 8 == 0) {
 							canvas.save();
+							graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
 							if (currentSecondXLabel == 0)
 								canvas.drawText(
 										stackGroupLabels.get(currentSecondXLabel++),

@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Touch Me Not Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.touchmenotapps.Graph3r.pie;
 
 import java.util.ArrayList;
@@ -11,22 +27,27 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 
 /**
- * @version Graph3r Alpha 3
+ * @version Graph3r Beta 1
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The PieGraphView class is used to render the pie graph.
  */
 public class PieGraphView {
 
 	/**
-	 * 
-	 * @param context
-	 * @param renderer
-	 * @return
-	 */
+	 * This function returns the pie graph view based on the values and settings passed by the renderer.
+	 * @param context - Context of the current activity.
+	 * @param renderer - PieGraphRenderer object that holds all the rendering values.
+	 * @return (View) Rendered PieGraph view.
+	 */ 
 	public View getGraphView(Context context, PieGraphRenderer renderer) {
 		return new PieGraph(context, renderer);
 	}
 	
+	/**
+	 * 
+	 * @author Arindam Nath
+	 *
+	 */
 	private class PieGraph extends View {
 			
 		private PieGraphRenderer mRenderer;
@@ -75,6 +96,11 @@ public class PieGraphView {
 		private float previousTranslateX = 0f;
 		private float previousTranslateY = 0f;
 	
+		/**
+		 * 
+		 * @param context
+		 * @param renderer
+		 */
 		public PieGraph(Context context, PieGraphRenderer renderer) {
 			super(context);
 			mRenderer = renderer;
@@ -82,6 +108,10 @@ public class PieGraphView {
 			initChartPlotData(renderer);
 		}
 	
+		/**
+		 * 
+		 * @param renderer
+		 */
 		private void initChartPlotData(PieGraphRenderer renderer) {
 			mPlotData = renderer.getGraphData();
 			mMaxConnection = renderer.getTotalValue(renderer.getGraphData());
@@ -93,6 +123,10 @@ public class PieGraphView {
 			setChartPaintObjects(renderer);
 		}
 	
+		/**
+		 * 
+		 * @param renderer
+		 */
 		private void setChartPaintObjects(PieGraphRenderer renderer) {
 			mPiePaint.setAntiAlias(true);
 			mPiePaint.setStyle(Paint.Style.FILL);
@@ -106,15 +140,24 @@ public class PieGraphView {
 					.getPieDividerLineThickness());
 		}
 	
+		/**
+		 * 
+		 * @param internalPadding
+		 * @return
+		 */
 		private RectF setPadding(int internalPadding) {
 			if (mWidth > mHeight) {
-				int horizontalPadding = ((mWidth - mHeight) / 2) + internalPadding;
-				return new RectF(horizontalPadding, internalPadding, mWidth
-						- horizontalPadding, mHeight - internalPadding);
+				int mPadding = ((mWidth - mHeight) / 2) + internalPadding;
+				return new RectF(mPadding, mPadding, mHeight
+						- mPadding, mHeight - internalPadding);
+			} else if(mWidth < mHeight) {
+				int mPadding = ((mHeight - mWidth) / 2) + internalPadding;
+				return new RectF(mPadding, mPadding, mWidth
+						- internalPadding, mWidth - mPadding);
 			} else {
-				int verticalPadding = ((mHeight - mWidth) / 2) + internalPadding;
-				return new RectF(internalPadding, verticalPadding, mWidth
-						- internalPadding, mHeight - verticalPadding);
+				int mPadding = ((mHeight - mWidth) / 2) + internalPadding;
+				return new RectF(internalPadding, mPadding, mWidth
+						- internalPadding, mHeight - mPadding);
 			}
 		}
 	

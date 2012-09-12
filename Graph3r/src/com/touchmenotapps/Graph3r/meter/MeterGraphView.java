@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2012 Touch Me Not Apps
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.touchmenotapps.Graph3r.meter;
 
 import android.content.Context;
@@ -14,22 +30,27 @@ import android.graphics.Paint.Style;
 import android.view.View;
 
 /**
- * @version Graph3r Alpha 3
+ * @version Graph3r Beta 1
  * @author Arindam Nath (strider2023@gmail.com)
  * @Description	The MeterGraphView class is used to render the meter graph.
  */
 public class MeterGraphView {
 	
 	/**
-	 * 
-	 * @param context
-	 * @param renderer
-	 * @return
+	 * This function returns the meter graph view based on the values and settings passed by the renderer.
+	 * @param context - Context of the current activity.
+	 * @param renderer - MeterGraphRenderer object that holds all the rendering values.
+	 * @return (View) Rendered MeterGraph view.
 	 */
 	public View getGraphView(Context context, MeterGraphRenderer renderer) {
 		return new MeterGraph(context, renderer);
 	}
 	
+	/**
+	 * 
+	 * @author Arindam Nath
+	 *
+	 */
 	private class MeterGraph extends View {
 	
 		private MeterGraphRenderer mRenderer;
@@ -97,6 +118,7 @@ public class MeterGraphView {
 			mDialTextPaint.setTextAlign(Align.CENTER);
 			mDialCenterTextPaint.setColor(renderer.getGraphDialCenterTextColor());
 			mDialCenterTextPaint.setTextAlign(Align.CENTER);
+			mDialCenterTextPaint.setTextSize(renderer.getGraphDialTextSize());
 		}
 	
 		@Override
