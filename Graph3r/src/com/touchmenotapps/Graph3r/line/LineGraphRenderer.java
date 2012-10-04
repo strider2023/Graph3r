@@ -150,6 +150,7 @@ public class LineGraphRenderer {
 					legendText.setBackgroundColor(mGraphPlotDeatils.get(i).getPlotColor());
 					legendText.setTextColor(Color.WHITE);
 					legendText.setLayoutParams(contentParams);
+					legendText.setTextSize(14);
 					legendText.setPadding(5, 5, 5, 5);
 					legendContent.addView(legendText);
 				}
@@ -162,7 +163,7 @@ public class LineGraphRenderer {
 					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
 			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
 			/** Reset the graph height based on user legends layout height **/
-			setGraphWidthAndHeight(getWidth(), getHeight() - legendsLayout.getHeight());
+			setGraphWidthAndHeight(mWidth, mHeight - 25);
 			View graphView = new LineGraphView().getGraphView(mContext, this); 
 			graphView.setLayoutParams(graphHolderParams);
 			graphLayout.addView(graphView);

@@ -23,8 +23,10 @@ import com.touchmenotapps.Graph3r.Graph;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Rect;
 import android.graphics.Paint.Align;
@@ -114,6 +116,8 @@ public class BarGraphView {
 		private Paint xAxesLabelTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	
 		private Paint xAxesSecondGroupPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		
+		private Paint yAxesDividers = new Paint(Paint.ANTI_ALIAS_FLAG);
 	
 		// These two variables keep track of the X and Y coordinate of the finger
 		// when it first
@@ -180,6 +184,11 @@ public class BarGraphView {
 			/** X axes label properties **/
 			xAxesLabelTextPaint.setTextSize(mRenderer.getXAxisLabelSize());
 			this.xAxisLabelRotation = mRenderer.getXAxisLabelRotation();
+			/** **/
+			yAxesDividers.setColor(mRenderer.getYAxisColor());
+			yAxesDividers.setStyle(Paint.Style.FILL);
+			yAxesDividers.setStrokeWidth(0.5f);
+			yAxesDividers.setPathEffect(new DashPathEffect(new float[] { 5, 5 }, 1));
 		}
 	
 		@Override
@@ -344,10 +353,19 @@ public class BarGraphView {
 					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4), originY);
+					/*RectF graphBar = new RectF(tempX, heightBar,
+							(int) (tempX + padding * 4), originY);
+					canvas.drawRoundRect(graphBar, (int) (padding/2), (int) (padding/2), paint);
+					canvas.drawRect(new Rect(tempX, (int) (originY- (padding/2)), (int) (tempX + padding * 4), originY), paint);*/
 					canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
-							heightBar - 5, barTextPaint);
+					/** TODO Revise logic **/
+					if(data.get(counter) == 0)
+						canvas.drawText("", tempX + padding * 2,
+								heightBar - 5, barTextPaint);
+					else
+						canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
+								heightBar - 5, barTextPaint);
 					canvas.restore();
 					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
@@ -391,10 +409,18 @@ public class BarGraphView {
 					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4), originY);
-					canvas.drawRect(bar, paint);
+					RectF graphBar = new RectF(tempX, heightBar,
+							(int) (tempX + padding * 4), originY);
+					canvas.drawRoundRect(graphBar, (int) (padding/2), (int) (padding/2), paint);
+					canvas.drawRect(new Rect(tempX, (int) (originY- (padding/2)), (int) (tempX + padding * 4), originY), paint);
+					//canvas.drawRect(bar, paint);
 					/** Add it to the items array **/
-					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
-							heightBar - 5, barTextPaint);
+					if(data.get(counter) == 0) 
+						canvas.drawText("", tempX + padding * 2,
+								heightBar - 5, barTextPaint);
+					else
+						canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
+								heightBar - 5, barTextPaint);
 					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
 					canvas.restore();
@@ -452,8 +478,12 @@ public class BarGraphView {
 					/** Add it to the items array **/
 					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
-					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
-							heightBar + (mRenderer.getXAxisLabelSize() + 2), stackBarTextPaint);
+					if(data.get(counter) == 0)
+						canvas.drawText("", tempX + padding * 2,
+								heightBar + (mRenderer.getXAxisLabelSize() + 2), stackBarTextPaint);
+					else
+						canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
+								heightBar + (mRenderer.getXAxisLabelSize() + 2), stackBarTextPaint);
 					canvas.restore();
 					if (counter % graphGrouping == 0) {
 						canvas.save();
@@ -521,6 +551,16 @@ public class BarGraphView {
 					/** Set the zoom and pan handler for the bars **/
 					canvas.save();
 					graphInputHandler(canvas, originX, _height, _width, originY, BAR_HANDLER);
+					//Drawing the month dividers
+					if(counter > 0 && counter % 9 == 0 && counter < data.size()) {
+						//canvas.save();
+						//graphInputHandler(canvas, originX, _height, _width, originY, X_AXES_LABEL_HANDLER);
+						int startX = (int) (tempX - padding * 0.5);
+						Rect yAxis = new Rect(startX, (int) (_height), startX + 1,
+								originY + xAxisLabelDistance);
+						canvas.drawRect(yAxis, yAxesDividers);
+						//canvas.restore();
+					}
 					/** Draw the bar **/
 					Rect bar = new Rect(tempX, heightBar,
 							(int) (tempX + padding * 4),
@@ -530,8 +570,12 @@ public class BarGraphView {
 					/** Add it to the items array **/
 					barGraphObject.add(new BarObject(bar, String.valueOf(data
 							.get(counter))));
-					canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
-							heightBar + (mRenderer.getXAxisLabelSize()  + 2), stackBarTextPaint);
+					if(data.get(counter) == 0)
+						canvas.drawText("", tempX + padding * 2,
+								heightBar + (mRenderer.getXAxisLabelSize()  + 2), stackBarTextPaint);
+					else
+						canvas.drawText(String.valueOf(data.get(counter)), tempX + padding * 2,
+								heightBar + (mRenderer.getXAxisLabelSize()  + 2), stackBarTextPaint);
 					canvas.restore();
 					if (counter % graphGrouping == 0) {
 						canvas.save();

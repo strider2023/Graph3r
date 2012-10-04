@@ -148,7 +148,7 @@ public class BarGraphRenderer {
 			HorizontalScrollView legendsLayout = new HorizontalScrollView(mContext);
 			legendsLayout.setHorizontalScrollBarEnabled(false);
 			RelativeLayout.LayoutParams legendsHolderParams = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+					RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			legendsHolderParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			legendsLayout.setLayoutParams(legendsHolderParams);
 			legendsLayout.setId(ID_LEGENDS_HOLDER);
@@ -160,12 +160,13 @@ public class BarGraphRenderer {
 				for(int i = 0; i < graphLegendsLabels.size(); i++) {
 					TextView legendText = new TextView(mContext);
 					LayoutParams contentParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-					contentParams.setMargins(5, 5, 5, 5);
+					contentParams.setMargins(5, 3, 5, 3);
 					legendText.setText(graphLegendsLabels.get(i));
 					legendText.setBackgroundColor(color.get(i)[0]);
 					legendText.setTextColor(Color.WHITE);
 					legendText.setLayoutParams(contentParams);
-					legendText.setPadding(5, 5, 5, 5);
+					legendText.setTextSize(14);
+					legendText.setPadding(5, 3, 5, 3);
 					legendContent.addView(legendText);
 				}
 				legendsLayout.addView(legendContent);
@@ -174,10 +175,10 @@ public class BarGraphRenderer {
 			graphLayout.addView(legendsLayout);
 			/** Add graph to the view holder **/
 			RelativeLayout.LayoutParams graphHolderParams = new RelativeLayout.LayoutParams(
-					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+					RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			graphHolderParams.addRule(RelativeLayout.ABOVE, ID_LEGENDS_HOLDER);
 			/** Reset the graph height based on user legends layout height **/
-			setGraphWidthAndHeight(getGraphWidth(), getGraphHeight() - legendsLayout.getHeight());
+			setGraphWidthAndHeight(graphWidth, graphHeight - 25);
 			View graphView = new BarGraphView().getGraphView(mContext, this); 
 			graphView.setLayoutParams(graphHolderParams);
 			graphLayout.addView(graphView);
