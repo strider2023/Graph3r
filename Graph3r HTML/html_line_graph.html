@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="graph3rLineGraph.js"></script>
+	<script>	
+		window.onload = function() {
+			var plotYValues = new Array(15, 20, 25, 35);
+			var linePlot = new LineData(plotYValues,"#AA66CC", 2, "Apple");
+			var plotYValues1 = new Array(10, 12, 18, 30);
+			var linePlot1 = new LineData(plotYValues1,"#0099CC", 2, "Samsung");
+			//For single item use
+			//var lineGraph = new LineGraph("myCanvas", new Array(linePlot), new Array("Jan", "Feb", "Mar", "Apr"));
+			var lineGraph = new LineGraph("myCanvas", new Array(linePlot, linePlot1), new Array("Jan", "Feb", "Mar", "Apr"));
+			lineGraph.setShowPlotValues(true);
+			lineGraph.setXAxisName("Months");
+			lineGraph.setYAxisName("Units Sold (in millions)");
+		};
+	</script>
+</head>
+<body>
+	<canvas id="myCanvas"
+		style="border:1px solid #c3c3c3;">
+	Your browser does not support the HTML5 canvas tag.
+	</canvas>
+</body>
+</html>

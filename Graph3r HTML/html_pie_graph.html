@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="graph3rPieChart.js"></script>
+	<script>	
+		window.onload = function() {
+			var plotValues = new Array(15, 25, 9, 10);
+			var plotNames = new Array("Jan", "Feb", "Mar", "Apr");
+			var plotColor = new Array("#AA66CC", "#0099CC", "#FF8800", "#CC0000");
+			var plot = new PieData(plotValues, plotNames, plotColor);
+			var barGraph = new PieChart("myCanvas", plot);
+		};
+	</script>
+</head>
+<body>
+	<canvas id="myCanvas"
+		style="border:1px solid #c3c3c3;">
+	Your browser does not support the HTML5 canvas tag.
+	</canvas>
+</body>
+</html>

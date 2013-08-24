@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script type="text/javascript" src="graph3rBarGraph.js"></script>
+	<script>	
+		window.onload = function() {
+			var plotYValues = new Array(15, 20, 1, 35);
+			var plotColor = new Array("#AA66CC", "#AA66CC", "#AA66CC", "#AA66CC");
+			var plot = new BarData(plotYValues, plotColor, "Apple");
+			
+			var plotYValues1 = new Array(20, 25, 11, 38);
+			var plotColor1 = new Array("#0099CC", "#0099CC", "#0099CC", "#0099CC");
+			var plot1 = new BarData(plotYValues1, plotColor1, "Samsung");
+			
+			var plotYValues2 = new Array(3, 27, 15, 20);
+			var plotColor2 = new Array("#669900", "#669900", "#669900", "#669900");
+			var plot2 = new BarData(plotYValues2, plotColor2, "Micromax");
+			
+			//For single item use
+			//var barGraph = new BarGraph("myCanvas", new Array(plot), new Array("Jan", "Feb", "Mar", "Apr"));
+			var barGraph = new BarGraph("myCanvas", new Array(plot,plot1,plot2), new Array("Jan", "Feb", "Mar", "Apr"));
+			barGraph.setShowPlotValues(true);
+			barGraph.setXAxisName("Months");
+			barGraph.setYAxisName("Units Sold (in millions)");
+		};
+	</script>
+</head>
+<body>
+	<canvas id="myCanvas"
+		style="border:1px solid #c3c3c3;">
+	Your browser does not support the HTML5 canvas tag.
+	</canvas>
+</body>
+</html>
